@@ -115,5 +115,4 @@ public class Alu {
         flag.set("S",sign(reg1));
         return flag;
     }
-
 }

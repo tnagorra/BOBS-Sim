@@ -1,14 +1,17 @@
 public class Microprocessor {
-    Register16 mar;
-    Register8 mbr;
+    // TODO
+    // Microprocessor States
+    // Bus is derivation of Register16
 
-    Register8 ir;
-    Register16 pc, sp;
+    private Register16 mar;
+    private Register8 mbr;
+    private Register8 ir;
+    private Register16 pc, sp;
 
-    Flag flag;
-    Register8[] register;
+    private Flag flag;
+    private Register8[] register;
 
-    Memory memory;
+    private Memory memory;
 
     // Constructor
     public Microprocessor(Memory mem) {
@@ -28,12 +31,7 @@ public class Microprocessor {
             register[i] = new Register8(i);
     }
 
-    public void start(Register16 mem){
-        pc = mem.clone();
-        fetch();
-        decode();
-    }
-
+    // The fetch cycle
     private void fetch(){
         mar = pc.clone();
         Alu.inr(pc);
@@ -41,11 +39,15 @@ public class Microprocessor {
         ir = mbr.clone();
     }
 
+    // The decode and execute cycle
     private void decode(){
         switch( ir.get(7,6) ){
             case 0b01:
                 // MOV
-                int DDD = ir.get(5,3), SSS = ir.get(2,0);
+                {
+                int DDD = ir.get(5,3);
+                int SSS = ir.get(2,0);
+                // NOTE: used register[110] as temporary register
                 // Get from memory if needed
                 if( SSS == 0b110 )
                     register[SSS] = memory.get( Register16.from( register[4], register[5]));
@@ -54,15 +56,119 @@ public class Microprocessor {
                 // Write to memory if needed
                 if ( DDD == 0b110 )
                     memory.set( Register16.from( register[4], register[5]) , register[DDD] );
+                }
                 break;
             case 0b00:
+                // MVI
+                if( ir.get(2,0) == 0b110 ){
+                    int DDD= ir.get(5,3);
+                    // Get immediate data
+                    register[DDD] = memory.get( pc );
+                    Alu.inr(pc);
+                    // Write to memory if needed
+                    if ( DDD == 0b110 )
+                        memory.set( Register16.from( register[4], register[5]) , register[DDD] );
+                }
+                // LXI
+                else if ( ir.get(3,0) == 0b0001 ){
+                    int DDD = ir.get(5,4);
+                    if( DDD != 0b11){
+                        int D1 = DDD*2;
+                        int D2 = D1+1;
+                        register[D2] = memory.get(pc);
+                        Alu.inr(pc);
+                        register[D1] = memory.get(pc);
+                        Alu.inr(pc);
+                    } else {
+                        Register8 D2 = memory.get(pc);
+                        Alu.inr(pc);
+                        Register8 D1 = memory.get(pc);
+                        Alu.inr(pc);
+                        sp = Register16.from(D1,D2);
+                    }
+                }
+                // LDA
+                else if( ir.get(5,0) == 0b111010 ) {
+                    Register8 D2 = memory.get(pc);
+                    Alu.inr(pc);
+                    Register8 D1 = memory.get(pc);
+                    Alu.inr(pc);
+                    register[7] = memory.get(Register16.from(D1,D2));
+                }
+               // STA
+                else if( ir.get(5,0) == 0b110010 ) {
+                    Register8 D2 = memory.get(pc);
+                    Alu.inr(pc);
+                    Register8 D1 = memory.get(pc);
+                    Alu.inr(pc);
+                    memory.set( Register16.from(D1,D2), register[7]);
+                }
+                // LHLD
+                else if( ir.get(5,0) == 0b101010) {
+                    Register8 D2 = memory.get(pc);
+                    Alu.inr(pc);
+                    Register8 D1 = memory.get(pc);
+                    Alu.inr(pc);
+                    Register16 source = Register16.from(D1,D2);
+
+                    register[5] = memory.get(source);
+                    Alu.inr(source);
+                    register[4] = memory.get(source);
+                }
+                // SHLD
+                else if( ir.get(5,0) == 0b100010) {
+                    Register8 D2 = memory.get(pc);
+                    Alu.inr(pc);
+                    Register8 D1 = memory.get(pc);
+                    Alu.inr(pc);
+                    Register16 source = Register16.from(D1,D2);
+
+                    memory.set( source, register[5]);
+                    Alu.inr(source);
+                    memory.set( source, register[4]);
+                }
+                // in LDAX and STAX it can't have Rp other than BC and DE
+                // but the previous cases of "if" should be sufficient for validation
+                // LDAX
+                else if( ir.get(3,0) == 0b1010 ) {
+                    int DDD = ir.get(5,4);
+                    int D1 = DDD*2;
+                    int D2 = D1+1;
+                    register[7] = memory.get( Register16.from(register[D1],register[D2]));
+                }
+                // STAX
+                else if( ir.get(3,0) == 0b0010 ) {
+                    int DDD = ir.get(5,4);
+                    int D1 = DDD*2;
+                    int D2 = D1+1;
+                    memory.set(Register16.from(register[D1], register[D2]), register[7]);
+                }
+
                 break;
             case 0b10:
                 break;
             case 0b11:
+               // XCHG
+                if( ir.get(5,0) == 0b101011 ) {
+                    Register8 temp = register[2];
+                    register[2] = register[4];
+                    register[4] = temp;
+                    temp = register[3];
+                    register[3] = register[5];
+                    register[5] = temp;
+                }
                 break;
             default:
                 break;
+        }
+    }
+
+    // Start the microprocessor operation
+    public void start(Register16 mem){
+        pc = mem.clone();
+        for(int i=0;i<1;i++){
+            fetch();
+            decode();
         }
     }
 
@@ -73,10 +179,8 @@ public class Microprocessor {
         System.out.println("BC\t: "+register[0].hex()+" "+register[1].hex());
         System.out.println("DE\t: "+register[2].hex()+" "+register[3].hex());
         System.out.println("HL\t: "+register[4].hex()+" "+register[5].hex());
-
         System.out.println("IR\t: "+ir.hex());
         System.out.println("PC\t: "+pc.hex());
         System.out.println("SP\t: "+sp.hex());
     }
-
 }
