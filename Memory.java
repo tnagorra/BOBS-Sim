@@ -4,7 +4,13 @@ class Memory {
     public Memory(int size){
          arr= new Register8[size];
         for(int i=0;i<arr.length;i++)
-            arr[i] = new Register8(i);
+            arr[i] = new Register8(0);
+    }
+
+    public void load( Register16 position, int[] opcode ){
+        for(int i=0;i < opcode.length && i+position.get() < arr.length; i++){
+            arr[i+position.get()] = new Register8(opcode[i]);
+        }
     }
 
     public Register8 get(Register16 position) {

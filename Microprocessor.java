@@ -10,35 +10,28 @@ public class Microprocessor {
 
     Memory memory;
 
-    public Microprocessor() {
+    // Constructor
+    public Microprocessor(Memory mem) {
+        // Initialize memory
+        memory = mem;
         // Initialize instruction register
         ir = new Register8(0x00);
         // Intialize Program Counter
         pc = new Register16(0x0000);
         // Initialize Stack Pointer
         sp = new Register16(0xFFFF);
-
-        // Initialize memory
-        memory = new Memory(65536);
-
         // Initialize flags to zero
         flag = new Flag(0x00);
-
         // Initialize 8 registers where only 7 will be used
         register = new Register8[8];
         for(int i=0;i<register.length;i++)
             register[i] = new Register8(i);
     }
 
-    public void start(){
-        //register[1].set(0xFE);
-        //flag = Alu.add(register[1],register[2]);
-        //flag = Alu.inr(pc);
-        memory.set( new Register16(0x000), new Register8(0x7E));
-        print();
+    public void start(Register16 mem){
+        pc = mem.clone();
         fetch();
         decode();
-        print();
     }
 
     private void fetch(){
@@ -51,21 +44,16 @@ public class Microprocessor {
     private void decode(){
         switch( ir.get(7,6) ){
             case 0b01:
-            // For MOV R/M, R/M
-                int DDD = ir.get(5,3);
-                int SSS = ir.get(2,0);
-
-                Register8 value;
+                // MOV
+                int DDD = ir.get(5,3), SSS = ir.get(2,0);
+                // Get from memory if needed
                 if( SSS == 0b110 )
-                    value = memory.get( Register16.from( register[4], register[5]));
-                else
-                    value = register[SSS].clone();
-
+                    register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                // Transfer from source register to destination
+                register[DDD] = register[SSS].clone();
+                // Write to memory if needed
                 if ( DDD == 0b110 )
-                    memory.set( Register16.from( register[4], register[5]) , value );
-                else
-                    register[DDD] = value.clone();
-
+                    memory.set( Register16.from( register[4], register[5]) , register[DDD] );
                 break;
             case 0b00:
                 break;
@@ -78,6 +66,7 @@ public class Microprocessor {
         }
     }
 
+    // Print the status of the program
     public void print(){
         flag.print();
         System.out.println("AF\t: "+register[7].hex()+" "+flag.hex());
@@ -89,6 +78,5 @@ public class Microprocessor {
         System.out.println("PC\t: "+pc.hex());
         System.out.println("SP\t: "+sp.hex());
     }
-
 
 }
