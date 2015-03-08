@@ -32,15 +32,23 @@ public class Alu {
     public static void cmp(Register reg){
         reg.set(~reg.get());
     }
+    public static void cmp2(Register reg){
+        reg.set(~reg.get()+1);
+    }
 
     // Adds reg1 and reg2 and stores value in reg1
     // Also returns the value of flags
-    public static Flag add(Register reg1, Register reg2){
+    public static Flag add(Register reg1, Register reg2, boolean carry){
         Flag flag = new Flag(0x00);
-        flag.set("C",reg1.get()+reg2.get() > reg1.m_maxvalue);
-        flag.set("AC",reg1.lower()+reg2.lower() > reg1.m_halfvalue);
-
-        reg1.set(reg1.get()+reg2.get());
+        if( carry){
+            flag.set("C",reg1.get()+reg2.get()+1 > reg1.m_maxvalue);
+            flag.set("AC",reg1.lower()+reg2.lower()+1 > reg1.m_halfvalue);
+            reg1.set(reg1.get()+reg2.get()+1);
+        } else {
+            flag.set("C",reg1.get()+reg2.get() > reg1.m_maxvalue);
+            flag.set("AC",reg1.lower()+reg2.lower() > reg1.m_halfvalue);
+            reg1.set(reg1.get()+reg2.get());
+        }
 
         flag.set("P",parity(reg1));
         flag.set("Z",zero(reg1));
@@ -49,22 +57,28 @@ public class Alu {
     }
 
     public static Flag inr(Register reg){
-        return add(reg,new Register(1,reg.m_length));
+        return add(reg,new Register(1,reg.m_length),false);
     }
 
     public static Flag dcr(Register reg){
-        return sub(reg,new Register(1,reg.m_length));
+        return sub(reg,new Register(1,reg.m_length),false);
     }
 
     // Subtracts reg1 and reg2 and stores value in reg1
     // Also returns the value of flags
-    public static Flag sub(Register reg1, Register reg2){
+    public static Flag sub(Register reg1, Register reg2, boolean borrow){
         Flag flag = new Flag(0x00);
-        flag.set("C",reg1.get()+reg2.get() > reg1.m_maxvalue);
-        flag.set("AC",reg1.lower()+reg2.lower() > reg1.m_halfvalue);
-
-        reg1.set(reg1.get()+(~reg2.get())+1);
-
+        Register reg3 = reg2.clone();
+        Alu.cmp(reg3);
+        if( borrow ){
+            flag.set("C",reg1.get()+reg3.get() <= reg1.m_maxvalue);
+            flag.set("AC",reg1.lower()+reg3.lower() <= reg1.m_halfvalue);
+            reg1.set(reg1.get()+reg3.get());
+        } else {
+            flag.set("C",reg1.get()+reg3.get()+1 <= reg1.m_maxvalue);
+            flag.set("AC",reg1.lower()+reg3.lower()+1 <= reg1.m_halfvalue);
+            reg1.set(reg1.get()+reg3.get()+1);
+        }
         flag.set("P",parity(reg1));
         flag.set("Z",zero(reg1));
         flag.set("S",sign(reg1));

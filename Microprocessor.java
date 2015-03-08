@@ -2,6 +2,7 @@ public class Microprocessor {
     // TODO
     // Microprocessor States
     // Bus is derivation of Register16
+    private boolean active;
 
     private Register16 mar;
     private Register8 mbr;
@@ -43,8 +44,12 @@ public class Microprocessor {
     private void decode(){
         switch( ir.get(7,6) ){
             case 0b01:
+                // HLT
+                if ( ir.get(5,0) == 0b110110 ) {
+                    active = false;
+                }
                 // MOV
-                {
+                else {
                 int DDD = ir.get(5,3);
                 int SSS = ir.get(2,0);
                 // NOTE: used register[110] as temporary register
@@ -145,11 +150,66 @@ public class Microprocessor {
                 }
 
                 break;
+
             case 0b10:
+                // ADD
+                if ( ir.get(5,3) == 0b000 ){
+                    int SSS = ir.get(2,0);
+                    if(SSS == 0b110)
+                        register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                    flag = Alu.add( register[7], register[SSS], false );
+                }
+                // ADC
+                else if ( ir.get(5,3) == 0b001 ){
+                    int SSS = ir.get(2,0);
+                    if(SSS == 0b110)
+                        register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                    flag = Alu.add( register[7], register[SSS], flag.get("C") );
+                }
+                // SUB
+                if ( ir.get(5,3) == 0b010 ){
+                    int SSS = ir.get(2,0);
+                    if(SSS == 0b110)
+                        register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                    flag = Alu.sub( register[7], register[SSS], false );
+                }
+                // SBB
+                else if ( ir.get(5,3) == 0b011 ){
+                    int SSS = ir.get(2,0);
+                    if(SSS == 0b110)
+                        register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                    flag = Alu.sub( register[7], register[SSS], flag.get("C") );
+                }
+
                 break;
+
             case 0b11:
+                // ADI
+                if ( ir.get(5,0) == 0b000110 ){
+                    register[6] = memory.get(pc);
+                    Alu.inr(pc);
+                    flag = Alu.add( register[7], register[6], false );
+                }
+                // ACI
+                else if ( ir.get(5,0) == 0b000110 ){
+                    register[6] = memory.get(pc);
+                    Alu.inr(pc);
+                    flag = Alu.add( register[7], register[6], flag.get("C") );
+                }
+                // SUI
+                if ( ir.get(5,0) == 0b010110 ){
+                    register[6] = memory.get(pc);
+                    Alu.inr(pc);
+                    flag = Alu.sub( register[7], register[6], false );
+                }
+                // ACI
+                else if ( ir.get(5,0) == 0b011110 ){
+                    register[6] = memory.get(pc);
+                    Alu.inr(pc);
+                    flag = Alu.sub( register[7], register[6], flag.get("C") );
+                }
                // XCHG
-                if( ir.get(5,0) == 0b101011 ) {
+                else if( ir.get(5,0) == 0b101011 ) {
                     Register8 temp = register[2];
                     register[2] = register[4];
                     register[4] = temp;
@@ -158,6 +218,7 @@ public class Microprocessor {
                     register[5] = temp;
                 }
                 break;
+
             default:
                 break;
         }
@@ -165,8 +226,9 @@ public class Microprocessor {
 
     // Start the microprocessor operation
     public void start(Register16 mem){
+        active = true;
         pc = mem.clone();
-        for(int i=0;i<1;i++){
+        while(active){
             fetch();
             decode();
         }
