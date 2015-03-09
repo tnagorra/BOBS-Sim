@@ -50,9 +50,9 @@ class Parser extends Tokenizer {
         // UnTokenize everything between ";" and "\n"
         {";.*\n", "\n"},
         // Tokenize a 16 bit number to two 8 bit pair
-        {"([0-9A-F][0-9A-F])([(0-9A-F][0-9A-F])[H]? *\n", " $2 $1\n"},
+        {"[ +,]([0-9A-F][0-9A-F])([(0-9A-F][0-9A-F])[H]? *\n", " $2 $1\n"},
         // Tokenize a 8 bit number
-        {"([0-9A-F][0-9A-F])[H]? *\n", " $1\n"},
+        {"[ +,]([0-9A-F][0-9A-F])[H]? *\n", " $1\n"},
 
         // Tokenize other commands
         {"MOV *([ABCDEHLM]) *, *([ABCDEHLM])", "MOV-$1$2 "},

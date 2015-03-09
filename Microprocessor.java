@@ -77,19 +77,19 @@ public class Microprocessor {
                 // LXI
                 else if ( ir.get(3,0) == 0b0001 ){
                     int DDD = ir.get(5,4);
-                    if( DDD != 0b11){
-                        int D1 = DDD*2;
-                        int D2 = D1+1;
-                        register[D2] = memory.get(pc);
-                        Alu.inr(pc);
-                        register[D1] = memory.get(pc);
-                        Alu.inr(pc);
-                    } else {
+                    if( DDD == 0b11){
+                        // for M
                         Register8 D2 = memory.get(pc);
                         Alu.inr(pc);
                         Register8 D1 = memory.get(pc);
                         Alu.inr(pc);
                         sp = Register16.from(D1,D2);
+                    } else {
+                        // for Rp
+                        register[DDD*2+1] = memory.get(pc);
+                        Alu.inr(pc);
+                        register[DDD*2] = memory.get(pc);
+                        Alu.inr(pc);
                     }
                 }
                 // LDA
@@ -132,6 +132,7 @@ public class Microprocessor {
                     Alu.inr(source);
                     memory.set( source, register[4]);
                 }
+                // NOTE
                 // in LDAX and STAX it can't have Rp other than BC and DE
                 // but the previous cases of "if" should be sufficient for validation
                 // LDAX
@@ -147,6 +148,72 @@ public class Microprocessor {
                     int D1 = DDD*2;
                     int D2 = D1+1;
                     memory.set(Register16.from(register[D1], register[D2]), register[7]);
+                }
+                // INR
+                else if( ir.get(2,0) == 0b100 ) {
+                    int DDD = ir.get(5,3);
+                    if(DDD == 0b110)
+                        register[DDD] = memory.get( Register16.from( register[4], register[5]));
+                    Flag tflag = Alu.inr(register[DDD]);
+                    if(DDD == 0b110)
+                        memory.set( Register16.from( register[4], register[5]) , register[DDD] );
+                    // So that carry flag isn't updated
+                    tflag.set("C",flag.get("C"));
+                    flag = tflag;
+                }
+                // DCR
+                else if( ir.get(2,0) == 0b101 ) {
+                    int DDD = ir.get(5,3);
+                    if(DDD == 0b110)
+                        register[DDD] = memory.get( Register16.from( register[4], register[5]));
+                    Flag tflag = Alu.dcr(register[DDD]);
+                    if(DDD == 0b110)
+                        memory.set( Register16.from( register[4], register[5]) , register[DDD] );
+                    // So that carry flag isn't updated
+                    tflag.set("C",flag.get("C"));
+                    flag = tflag;
+                }
+                // INX
+                else if( ir.get(3,0) == 0b0011 ) {
+                   int DDD = ir.get(5,4);
+                    if( DDD == 0b11){
+                        Alu.inr(sp);
+                    } else {
+                        Flag tflag = Alu.inr( register[DDD*2+1] );
+                        if( tflag.get("C") )
+                            Alu.inr( register[DDD*2] );
+                    }
+                }
+                // DCX
+                else if( ir.get(3,0) == 0b1011 ) {
+                   int DDD = ir.get(5,4);
+                    if( DDD == 0b11){
+                        Alu.dcr(sp);
+                    } else {
+                        Flag tflag = Alu.dcr( register[DDD*2+1] );
+                        if( tflag.get("C") )
+                            Alu.dcr( register[DDD*2] );
+                    }
+                }
+                // DAD
+                else if( ir.get(3,0) == 0b1001 ) {
+                   int DDD = ir.get(5,4);
+                    if( DDD == 0b11){
+                        // HEre
+                    } else {
+                        Flag tflag = Alu.add( register[5], register[DDD*2+1],false );
+                        tflag = Alu.add( register[4], register[DDD*2],tflag.get("C") );
+                        flag.set("C",tflag.get("C"));
+                    }
+                }
+                // DAA
+                else if( ir.get(5,0) == 0b100111 ) {
+                    if( register[7].get(3,0) > 0x09 || flag.get("AC") ){
+                        Alu.add(register[7], new Register8(0x06),false);
+                    }
+                    if( register[7].get(7,4) > 0x09 || flag.get("C") ){
+                        flag = Alu.add(register[7], new Register8(0x60),false);
+                    }
                 }
 
                 break;
@@ -202,7 +269,7 @@ public class Microprocessor {
                     Alu.inr(pc);
                     flag = Alu.sub( register[7], register[6], false );
                 }
-                // ACI
+                // SBI
                 else if ( ir.get(5,0) == 0b011110 ){
                     register[6] = memory.get(pc);
                     Alu.inr(pc);
