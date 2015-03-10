@@ -1,7 +1,11 @@
+// TODO
+// Microprocessor States
+// Bus is derivation of Register16
+//
+// IN OUT
+// EI DI
+// RIM SIM
 public class Microprocessor {
-    // TODO
-    // Microprocessor States
-    // Bus is derivation of Register16
     private boolean active;
 
     private Register16 mar;
@@ -50,17 +54,17 @@ public class Microprocessor {
                 }
                 // MOV
                 else {
-                int DDD = ir.get(5,3);
-                int SSS = ir.get(2,0);
-                // NOTE: used register[110] as temporary register
-                // Get from memory if needed
-                if( SSS == 0b110 )
-                    register[SSS] = memory.get( Register16.from( register[4], register[5]));
-                // Transfer from source register to destination
-                register[DDD] = register[SSS].clone();
-                // Write to memory if needed
-                if ( DDD == 0b110 )
-                    memory.set( Register16.from( register[4], register[5]) , register[DDD] );
+                    int DDD = ir.get(5,3);
+                    int SSS = ir.get(2,0);
+                    // NOTE: used register[110] as temporary register
+                    // Get from memory if needed
+                    if( SSS == 0b110 )
+                        register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                    // Transfer from source register to destination
+                    register[DDD] = register[SSS].clone();
+                    // Write to memory if needed
+                    if ( DDD == 0b110 )
+                        memory.set( Register16.from( register[4], register[5]) , register[DDD] );
                 }
                 break;
             case 0b00:
@@ -92,6 +96,10 @@ public class Microprocessor {
                         Alu.inr(pc);
                     }
                 }
+                // NOP
+                else if( ir.get(5,0) == 0b00000 ) {
+                    // nothing here
+                }
                 // LDA
                 else if( ir.get(5,0) == 0b111010 ) {
                     Register8 D2 = memory.get(pc);
@@ -100,7 +108,7 @@ public class Microprocessor {
                     Alu.inr(pc);
                     register[7] = memory.get(Register16.from(D1,D2));
                 }
-               // STA
+                // STA
                 else if( ir.get(5,0) == 0b110010 ) {
                     Register8 D2 = memory.get(pc);
                     Alu.inr(pc);
@@ -175,7 +183,7 @@ public class Microprocessor {
                 }
                 // INX
                 else if( ir.get(3,0) == 0b0011 ) {
-                   int DDD = ir.get(5,4);
+                    int DDD = ir.get(5,4);
                     if( DDD == 0b11){
                         Alu.inr(sp);
                     } else {
@@ -186,7 +194,7 @@ public class Microprocessor {
                 }
                 // DCX
                 else if( ir.get(3,0) == 0b1011 ) {
-                   int DDD = ir.get(5,4);
+                    int DDD = ir.get(5,4);
                     if( DDD == 0b11){
                         Alu.dcr(sp);
                     } else {
@@ -197,7 +205,7 @@ public class Microprocessor {
                 }
                 // DAD
                 else if( ir.get(3,0) == 0b1001 ) {
-                   int DDD = ir.get(5,4);
+                    int DDD = ir.get(5,4);
                     if( DDD == 0b11){
                         // HEre
                     } else {
@@ -215,6 +223,51 @@ public class Microprocessor {
                         flag = Alu.add(register[7], new Register8(0x60),false);
                     }
                 }
+                // RLC
+                else if( ir.get(5,0) == 0b000111 ) {
+                    // get highest bit
+                    boolean bit = register[7].get(7);
+                    Alu.shl(register[7]);
+                    register[7].set(0,bit);
+                    flag.set("C",bit);
+                }
+                // RRC
+                else if( ir.get(5,0) == 0b001111 ) {
+                    // get highest bit
+                    boolean bit = register[7].get(0);
+                    Alu.shr(register[7]);
+                    register[7].set(7,bit);
+                    flag.set("C",bit);
+                }
+                // RAL
+                else if( ir.get(5,0) == 0b010111 ) {
+                    // get highest bit
+                    boolean bit = register[7].get(7);
+                    Alu.shl(register[7]);
+                    register[7].set(0,flag.get("C"));
+                    flag.set("C",bit);
+                }
+                // RAR
+                else if( ir.get(5,0) == 0b011111 ) {
+                    // get highest bit
+                    boolean bit = register[7].get(0);
+                    Alu.shr(register[7]);
+                    register[7].set(7,flag.get("C"));
+                    flag.set("C",bit);
+                }
+                // CMA
+                else if( ir.get(5,0) == 0b101111) {
+                    Alu.cmp(register[7]);
+                }
+                // CMC
+                else if( ir.get(5,0) == 0b111111) {
+                    flag.set("C", ! flag.get("C"));
+                }
+                // STC
+                else if( ir.get(5,0) == 0b110111) {
+                    flag.set("C",true);
+                }
+
 
                 break;
 
@@ -247,6 +300,38 @@ public class Microprocessor {
                         register[SSS] = memory.get( Register16.from( register[4], register[5]));
                     flag = Alu.sub( register[7], register[SSS], flag.get("C") );
                 }
+                // ANA
+                if ( ir.get(5,3) == 0b100 ){
+                    int SSS = ir.get(2,0);
+                    if(SSS == 0b110)
+                        register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                    flag = Alu.and( register[7], register[SSS]);
+                }
+                // XRA
+                if ( ir.get(5,3) == 0b101 ){
+                    int SSS = ir.get(2,0);
+                    if(SSS == 0b110)
+                        register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                    flag = Alu.xor( register[7], register[SSS]);
+                }
+                // ORA
+                if ( ir.get(5,3) == 0b110 ){
+                    int SSS = ir.get(2,0);
+                    if(SSS == 0b110)
+                        register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                    flag = Alu.or( register[7], register[SSS]);
+                }
+                // CMP
+                if ( ir.get(5,3) == 0b111 ){
+                    int SSS = ir.get(2,0);
+                    if(SSS == 0b110)
+                        register[SSS] = memory.get( Register16.from( register[4], register[5]));
+                    // Register mustn't be changed
+                    Register8 tregister = register[7].clone();
+                    flag = Alu.sub( tregister , register[SSS], false );
+                }
+
+
 
                 break;
 
@@ -258,7 +343,7 @@ public class Microprocessor {
                     flag = Alu.add( register[7], register[6], false );
                 }
                 // ACI
-                else if ( ir.get(5,0) == 0b000110 ){
+                else if ( ir.get(5,0) == 0b001110 ){
                     register[6] = memory.get(pc);
                     Alu.inr(pc);
                     flag = Alu.add( register[7], register[6], flag.get("C") );
@@ -275,7 +360,33 @@ public class Microprocessor {
                     Alu.inr(pc);
                     flag = Alu.sub( register[7], register[6], flag.get("C") );
                 }
-               // XCHG
+                // ANI
+                else if ( ir.get(5,0) == 0b100110){
+                    register[6] = memory.get(pc);
+                    Alu.inr(pc);
+                    flag = Alu.and( register[7], register[6] );
+                }
+                // XRI
+                else if ( ir.get(5,0) == 0b101110){
+                    register[6] = memory.get(pc);
+                    Alu.inr(pc);
+                    flag = Alu.xor( register[7], register[6] );
+                }
+                // ORI
+                else if ( ir.get(5,0) == 0b110110){
+                    register[6] = memory.get(pc);
+                    Alu.inr(pc);
+                    flag = Alu.or( register[7], register[6] );
+                }
+                // CPI
+                if ( ir.get(5,0) == 0b111110 ){
+                    register[6] = memory.get(pc);
+                    Alu.inr(pc);
+                    // Register mustn't be changed
+                    Register8 tregister = register[7].clone();
+                    flag = Alu.sub( tregister , register[6], false );
+                }
+                // XCHG
                 else if( ir.get(5,0) == 0b101011 ) {
                     Register8 temp = register[2];
                     register[2] = register[4];
@@ -283,6 +394,261 @@ public class Microprocessor {
                     temp = register[3];
                     register[3] = register[5];
                     register[5] = temp;
+                }
+                // PUSH
+                else if( ir.get(3,0) == 0b0101) {
+                    int SSS = ir.get(5,4);
+                    if( SSS == 0b11){
+                        // for M
+                        Alu.dcr(sp);
+                        memory.set(sp, register[7] );
+                        Alu.dcr(sp);
+                        memory.set(sp, flag );
+                    } else {
+                        // for Rp
+                        Alu.dcr(sp);
+                        memory.set(sp, register[ SSS*2 ] );
+                        Alu.dcr(sp);
+                        memory.set(sp, register[ SSS*2+1 ] );
+                    }
+                }
+                // POP
+                else if( ir.get(3,0) == 0b0001) {
+                    int DDD = ir.get(5,4);
+                    if( DDD == 0b11){
+                        // for M
+                        flag.set(memory.get(sp));
+                        Alu.inr(sp);
+                        register[7] = memory.get(sp);
+                        Alu.inr(sp);
+                    } else {
+                        // for Rp
+                        register[DDD*2+1] = memory.get(sp);
+                        Alu.inr(sp);
+                        register[DDD*2] = memory.get(sp);
+                        Alu.inr(sp);
+                    }
+                }
+                // JMP
+                else if( ir.get(5,0) == 0b000011){
+                    Register8 D2 = memory.get(pc);
+                    Alu.inr(pc);
+                    Register8 D1 = memory.get(pc);
+                    Alu.inr(pc);
+                    pc = Register16.from(D1,D2);
+                }
+                // CALL
+                else if( ir.get(5,0) == 0b001101){
+                    Alu.dcr(sp);
+                    memory.set(sp, new Register8(pc.upper()) );
+                    Alu.dcr(sp);
+                    memory.set(sp, new Register8(pc.lower()) );
+
+                    Register8 D2 = memory.get(pc);
+                    Alu.inr(pc);
+                    Register8 D1 = memory.get(pc);
+                    Alu.inr(pc);
+                    pc = Register16.from(D1,D2);
+                }
+                // RST
+                else if( ir.get(2,0) == 0b111){
+                    Alu.dcr(sp);
+                    memory.set(sp, new Register8(pc.upper()) );
+                    Alu.dcr(sp);
+                    memory.set(sp, new Register8(pc.lower()) );
+
+                    Register16 taddr = new Register16( ir.get(5,3) );
+                    // ie times 8
+                    Alu.shl(taddr);
+                    Alu.shl(taddr);
+                    Alu.shl(taddr);
+                    pc = taddr;
+                }
+                // RET
+                else if( ir.get(5,0) == 0b001001){
+                    Register8 D2 = memory.get(sp);
+                    Alu.inr(sp);
+                    Register8 D1 = memory.get(sp);
+                    Alu.inr(sp);
+                    pc = Register16.from(D1,D2);
+                }
+                // PCHL
+                else if( ir.get(5,0) == 0b101001){
+                    pc = Register16.from( register[4], register[5]);
+                }
+                // SPHL
+                else if( ir.get(5,0) == 0b111001){
+                    sp = Register16.from( register[4], register[5]);
+                }
+                // XTHL
+                else if( ir.get(5,0) == 0b100011){
+                    Register16 tadr = sp.clone();
+
+                    Register8 treg = memory.get(tadr);
+                    memory.set( tadr , register[5] );
+                    register[5] = treg.clone();
+
+                    Alu.inr(tadr);
+
+                    treg = memory.get(tadr);
+                    memory.set( tadr , register[4] );
+                    register[4] = treg.clone();
+                }
+                // JX
+                else if( ir.get(2,0) == 0b010) {
+                    boolean jmp = false;
+                    switch ( ir.get(5,3) ){
+                        case 0b000:
+                            if (!flag.get("Z"))
+                                jmp = true;
+                            break;
+                        case 0b001:
+                            if (flag.get("Z"))
+                                jmp = true;
+                            break;
+                        case 0b010:
+                            if (!flag.get("C"))
+                                jmp = true;
+                            break;
+                        case 0b011:
+                            if (flag.get("C"))
+                                jmp = true;
+                            break;
+                        case 0b100:
+                            if (!flag.get("P"))
+                                jmp = true;
+                            break;
+                        case 0b101:
+                            if (flag.get("P"))
+                                jmp = true;
+                            break;
+                        case 0b110:
+                            if (!flag.get("S"))
+                                jmp = true;
+                            break;
+                        case 0b111:
+                            if (flag.get("S"))
+                                jmp = true;
+                            break;
+                        default:
+                            // Error
+                            break;
+                    }
+                    if( jmp ) {
+                        Register8 D2 = memory.get(pc);
+                        Alu.inr(pc);
+                        Register8 D1 = memory.get(pc);
+                        Alu.inr(pc);
+                        pc = Register16.from(D1,D2);
+                    } else {
+                        Alu.inr(pc);
+                        Alu.inr(pc);
+                    }
+                }
+                // CX
+                else if( ir.get(2,0) == 0b100) {
+                    boolean jmp = false;
+                    switch ( ir.get(5,3) ){
+                        case 0b000:
+                            if (!flag.get("Z"))
+                                jmp = true;
+                            break;
+                        case 0b001:
+                            if (flag.get("Z"))
+                                jmp = true;
+                            break;
+                        case 0b010:
+                            if (!flag.get("C"))
+                                jmp = true;
+                            break;
+                        case 0b011:
+                            if (flag.get("C"))
+                                jmp = true;
+                            break;
+                        case 0b100:
+                            if (!flag.get("P"))
+                                jmp = true;
+                            break;
+                        case 0b101:
+                            if (flag.get("P"))
+                                jmp = true;
+                            break;
+                        case 0b110:
+                            if (!flag.get("S"))
+                                jmp = true;
+                            break;
+                        case 0b111:
+                            if (flag.get("S"))
+                                jmp = true;
+                            break;
+                        default:
+                            // Error
+                            break;
+                    }
+                    if( jmp ) {
+                        Alu.dcr(sp);
+                        memory.set(sp, new Register8(pc.upper()) );
+                        Alu.dcr(sp);
+                        memory.set(sp, new Register8(pc.lower()) );
+
+                        Register8 D2 = memory.get(pc);
+                        Alu.inr(pc);
+                        Register8 D1 = memory.get(pc);
+                        Alu.inr(pc);
+                        pc = Register16.from(D1,D2);
+                    } else {
+                        Alu.inr(pc);
+                        Alu.inr(pc);
+                    }
+                }
+                // RX
+                else if( ir.get(2,0) == 0b000) {
+                    boolean jmp = false;
+                    switch ( ir.get(5,3) ){
+                        case 0b000:
+                            if (!flag.get("Z"))
+                                jmp = true;
+                            break;
+                        case 0b001:
+                            if (flag.get("Z"))
+                                jmp = true;
+                            break;
+                        case 0b010:
+                            if (!flag.get("C"))
+                                jmp = true;
+                            break;
+                        case 0b011:
+                            if (flag.get("C"))
+                                jmp = true;
+                            break;
+                        case 0b100:
+                            if (!flag.get("P"))
+                                jmp = true;
+                            break;
+                        case 0b101:
+                            if (flag.get("P"))
+                                jmp = true;
+                            break;
+                        case 0b110:
+                            if (!flag.get("S"))
+                                jmp = true;
+                            break;
+                        case 0b111:
+                            if (flag.get("S"))
+                                jmp = true;
+                            break;
+                        default:
+                            // Error
+                            break;
+                    }
+                    if( jmp ) {
+                        Register8 D2 = memory.get(sp);
+                        Alu.inr(sp);
+                        Register8 D1 = memory.get(sp);
+                        Alu.inr(sp);
+                        pc = Register16.from(D1,D2);
+                    } else {
+                    }
                 }
                 break;
 
@@ -296,8 +662,10 @@ public class Microprocessor {
         active = true;
         pc = mem.clone();
         while(active){
+            System.out.print("PC "+pc.hex());
             fetch();
             decode();
+            System.out.println("\tIR "+ir.bin());
         }
     }
 

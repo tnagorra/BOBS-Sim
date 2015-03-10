@@ -26,6 +26,10 @@ public class Flag extends Register8 {
         set(index(flg),value);
     }
 
+    public void set(Register8 reg){
+        super.set(reg.m_value);
+    }
+
     // DEBUGGING
 
     // Displays the flag
