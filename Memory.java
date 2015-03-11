@@ -13,6 +13,14 @@ class Memory {
         }
     }
 
+    public void print( Register16 position, int total){
+        System.out.print( position.hex()+ " : ");
+        for(int i=0;i < total && i+position.get() < arr.length; i++){
+            System.out.print(arr[i+position.get()].hex()+" ");
+        }
+        System.out.print("\n");
+    }
+
     public Register8 get(Register16 position) {
         if( position.get() >=arr.length || position.get() <0 )
             throw new IndexOutOfBoundsException();

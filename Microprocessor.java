@@ -5,6 +5,9 @@
 // IN OUT
 // EI DI
 // RIM SIM
+
+import java.io.*;
+
 public class Microprocessor {
     private boolean active;
 
@@ -33,7 +36,7 @@ public class Microprocessor {
         // Initialize 8 registers where only 7 will be used
         register = new Register8[8];
         for(int i=0;i<register.length;i++)
-            register[i] = new Register8(i);
+            register[i] = new Register8(0);
     }
 
     // The fetch cycle
@@ -266,12 +269,15 @@ public class Microprocessor {
                 // STC
                 else if( ir.get(5,0) == 0b110111) {
                     flag.set("C",true);
+                } else {
+                    System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
                 }
 
 
                 break;
 
             case 0b10:
+
                 // ADD
                 if ( ir.get(5,3) == 0b000 ){
                     int SSS = ir.get(2,0);
@@ -287,7 +293,7 @@ public class Microprocessor {
                     flag = Alu.add( register[7], register[SSS], flag.get("C") );
                 }
                 // SUB
-                if ( ir.get(5,3) == 0b010 ){
+                else if ( ir.get(5,3) == 0b010 ){
                     int SSS = ir.get(2,0);
                     if(SSS == 0b110)
                         register[SSS] = memory.get( Register16.from( register[4], register[5]));
@@ -301,28 +307,28 @@ public class Microprocessor {
                     flag = Alu.sub( register[7], register[SSS], flag.get("C") );
                 }
                 // ANA
-                if ( ir.get(5,3) == 0b100 ){
+                else if ( ir.get(5,3) == 0b100 ){
                     int SSS = ir.get(2,0);
                     if(SSS == 0b110)
                         register[SSS] = memory.get( Register16.from( register[4], register[5]));
                     flag = Alu.and( register[7], register[SSS]);
                 }
                 // XRA
-                if ( ir.get(5,3) == 0b101 ){
+                else if ( ir.get(5,3) == 0b101 ){
                     int SSS = ir.get(2,0);
                     if(SSS == 0b110)
                         register[SSS] = memory.get( Register16.from( register[4], register[5]));
                     flag = Alu.xor( register[7], register[SSS]);
                 }
                 // ORA
-                if ( ir.get(5,3) == 0b110 ){
+                else if ( ir.get(5,3) == 0b110 ){
                     int SSS = ir.get(2,0);
                     if(SSS == 0b110)
                         register[SSS] = memory.get( Register16.from( register[4], register[5]));
                     flag = Alu.or( register[7], register[SSS]);
                 }
                 // CMP
-                if ( ir.get(5,3) == 0b111 ){
+                else if ( ir.get(5,3) == 0b111 ){
                     int SSS = ir.get(2,0);
                     if(SSS == 0b110)
                         register[SSS] = memory.get( Register16.from( register[4], register[5]));
@@ -330,8 +336,9 @@ public class Microprocessor {
                     Register8 tregister = register[7].clone();
                     flag = Alu.sub( tregister , register[SSS], false );
                 }
-
-
+                else {
+                    System.out.println(ir.get(5,3) == 0b000);
+                }
 
                 break;
 
@@ -349,7 +356,7 @@ public class Microprocessor {
                     flag = Alu.add( register[7], register[6], flag.get("C") );
                 }
                 // SUI
-                if ( ir.get(5,0) == 0b010110 ){
+                else if ( ir.get(5,0) == 0b010110 ){
                     register[6] = memory.get(pc);
                     Alu.inr(pc);
                     flag = Alu.sub( register[7], register[6], false );
@@ -379,7 +386,7 @@ public class Microprocessor {
                     flag = Alu.or( register[7], register[6] );
                 }
                 // CPI
-                if ( ir.get(5,0) == 0b111110 ){
+                else if ( ir.get(5,0) == 0b111110 ){
                     register[6] = memory.get(pc);
                     Alu.inr(pc);
                     // Register mustn't be changed
@@ -649,35 +656,58 @@ public class Microprocessor {
                         pc = Register16.from(D1,D2);
                     } else {
                     }
+
+                }
+                else {
+                    System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
                 }
                 break;
 
             default:
+                    System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
                 break;
         }
     }
 
     // Start the microprocessor operation
-    public void start(Register16 mem){
+    public void start(Register16 mem, boolean verbose,boolean singlestep) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
         active = true;
         pc = mem.clone();
         while(active){
-            System.out.print("PC "+pc.hex());
             fetch();
             decode();
-            System.out.println("\tIR "+ir.bin());
+
+            if(singlestep){
+              print(verbose);
+
+              String y = br.readLine();
+              if( y.equals("Q") || y.equals("q") )
+                  active = false;
+              if( y.equals("B") || y.equals("b") )
+                  singlestep = false;
+              if( y.equals("V") || y.equals("v") )
+                  verbose = true;
+              if( y.equals("NV") || y.equals("nv") )
+                  verbose = false;
+            }
         }
     }
 
     // Print the status of the program
-    public void print(){
-        flag.print();
-        System.out.println("AF\t: "+register[7].hex()+" "+flag.hex());
-        System.out.println("BC\t: "+register[0].hex()+" "+register[1].hex());
-        System.out.println("DE\t: "+register[2].hex()+" "+register[3].hex());
-        System.out.println("HL\t: "+register[4].hex()+" "+register[5].hex());
+    public void print(boolean verbose){
+        if(verbose){
+            flag.print();
+            System.out.println("PSW\t: "+register[7].hex()+" "+flag.hex());
+            System.out.println("BC\t: "+register[0].hex()+" "+register[1].hex());
+            System.out.println("DE\t: "+register[2].hex()+" "+register[3].hex());
+            System.out.println("HL\t: "+register[4].hex()+" "+register[5].hex());
+        }
         System.out.println("IR\t: "+ir.hex());
         System.out.println("PC\t: "+pc.hex());
-        System.out.println("SP\t: "+sp.hex());
+        if(verbose){
+            System.out.println("SP\t: "+sp.hex());
+        }
     }
 }

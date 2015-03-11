@@ -8,10 +8,17 @@ class Parser extends Tokenizer {
 
     protected int[] tokenValue;
 
-    public Parser(String name, boolean open) throws IOException, ParseException {
+    public Parser(String name, boolean open, String datatype) throws IOException, ParseException {
         super(name,open,Parser.tokenReplace,Parser.tokenSplit);
         //print();
-        translateOpcode();
+        if(datatype=="asm") {
+            translateOpcode();
+        } else if (datatype=="data") {
+            // something here
+        } else {
+            throw new ParseException("Invalid datatype");
+        }
+        checkByteCode();
         assignValue();
     }
 
@@ -20,15 +27,19 @@ class Parser extends Tokenizer {
     }
 
     // Find the opcode values in Hashmap and change those values
-    private void translateOpcode() throws ParseException {
+    private void translateOpcode() {
         for(int i=0;i<tokens.length;i++){
             // If the code is in hash table then change them
-            // and if they are not in hashtable neither are they 8bit numbers
-            // then throw an error
             if(Parser.tokenOpcode.containsKey(tokens[i]))
                 tokens[i] = Parser.tokenOpcode.get(tokens[i]);
-            else if ( !tokens[i].matches("[0-9A-F][0-9A-F]") )
-                throw new ParseException("Invalid code: " + tokens[i]);
+        }
+    }
+
+    private void checkByteCode() throws ParseException {
+        for(int i=0;i<tokens.length;i++){
+            // If they 8bit numbers then throw an error
+            if ( !tokens[i].matches("[0-9A-F][0-9A-F]") )
+                throw new ParseException("Invalid token: " + tokens[i]);
         }
     }
 
