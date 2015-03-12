@@ -34,12 +34,13 @@ public class Flag extends Register8 {
 
     // Displays the flag
     public void print() {
-        System.out.print("Flags\t: " );
-        if( get("C") ) System.out.print("C ");
-        if( get("P") ) System.out.print("P ");
-        if( get("AC") ) System.out.print("AC ");
-        if( get("Z") ) System.out.print("Z ");
-        if( get("S") ) System.out.print("S ");
-        System.out.print("\n");
+        String flags = "";
+        if( get("C") ) flags += "C ";
+        if( get("P") ) flags += "P ";
+        if( get("AC") ) flags += "AC ";
+        if( get("Z") ) flags += "Z ";
+        if( get("S") ) flags += "S ";
+        if( !flags.equals(""))
+            System.out.println(flags);
     }
 }

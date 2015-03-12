@@ -3,21 +3,29 @@
 // Bus is derivation of Register16
 //
 // IN OUT
-// EI DI
-// RIM SIM
 
+// ale
+// Ready, hold, hlda, reset in, reset out, clk
 import java.io.*;
 
 public class Microprocessor {
-    private boolean active;
+    public boolean active;
+
+    public boolean iom, read, write;
+
+    // Interrupt masks
+    public boolean sod, sid, m7, m6, m5, i7, i6, i5, ie;
+    // Interrupts
+    public boolean r7, r6, r5, trap, intr;
 
     private Register16 mar;
     private Register8 mbr;
+
     private Register8 ir;
     private Register16 pc, sp;
 
-    private Flag flag;
     private Register8[] register;
+    private Flag flag;
 
     private Memory memory;
 
@@ -37,14 +45,46 @@ public class Microprocessor {
         register = new Register8[8];
         for(int i=0;i<register.length;i++)
             register[i] = new Register8(0);
+        // Let's not active the microprocessor
+        iom = read = write = false;
+        active = m7 = m6 = m5 = i7 = i6 = i5 = sid = sod = false;
+        r7 = r6 = r5 = trap = intr = false;
+        ie = true;
+    }
+
+    // Start the microprocessor operation
+    public void start(Register16 mem, boolean verbose,boolean singlestep) throws IOException {
+
+        pc = mem.clone();
+        active = true;
+
+        while (active){
+            if (singlestep){
+                print(verbose);
+                String y = new BufferedReader(new InputStreamReader(System.in)).readLine();
+                // quit
+                if( y.equals("Q") || y.equals("q") )
+                    active = false;
+                // burst
+                else if( y.equals("B") || y.equals("b") )
+                    singlestep = false;
+                // verbose
+                else if( y.equals("V") || y.equals("v") )
+                    verbose = true;
+                // silent
+                else if( y.equals("S") || y.equals("s") )
+                    verbose = false;
+            }
+            fetch();
+            decode();
+        }
+
+        print(true);
     }
 
     // The fetch cycle
     private void fetch(){
-        mar = pc.clone();
-        Alu.inr(pc);
-        mbr = memory.get(mar);
-        ir = mbr.clone();
+        ir = getData8FromMemory();
     }
 
     // The decode and execute cycle
@@ -230,6 +270,30 @@ public class Microprocessor {
                 else if( ir.get(5,0) == 0b110111) {
                     flag.set("C",true);
                 }
+                // RIM
+                else if( ir.get(5,0) == 0b100000) {
+                    getA().set(0,m5);
+                    getA().set(1,m6);
+                    getA().set(2,m7);
+                    getA().set(3,ie);
+
+                    getA().set(4,i5);
+                    getA().set(5,i6);
+                    getA().set(6,i7);
+                    getA().set(7,sid);
+                }
+                // SIM
+                else if( ir.get(5,0) == 0b110000) {
+                    if( getA().get(6) )
+                        sod = getA().get(7);
+                    if( getA().get(4) )
+                        r7 = false;
+                    if(getA().get(3)){
+                        m7 = getA().get(2);
+                        m6 = getA().get(1);
+                        m5 = getA().get(0);
+                    }
+                }
                 // Error
                 else {
                     System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
@@ -281,7 +345,6 @@ public class Microprocessor {
                 else {
                     System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
                 }
-
                 break;
 
             case 0b11:
@@ -434,6 +497,22 @@ public class Microprocessor {
                         popPC();
                     }
                 }
+                // EI
+                else if( ir.get(5,0) == 0b111011){
+                    ie = true;
+                }
+                // DI
+                else if( ir.get(5,0) == 0b110011){
+                    ie = false;
+                }
+                // IN
+                else if( ir.get(5,0) == 0b011011){
+                    //setA( getDataFromIO(readData8FromMemory()) );
+                }
+                // OUT
+                else if( ir.get(5,0) == 0b010011){
+                    //setDataToIO(readData8FromMemory(),getA());
+                }
                 else {
                     System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
                 }
@@ -442,32 +521,6 @@ public class Microprocessor {
             default:
                 System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
                 break;
-        }
-    }
-
-    // Start the microprocessor operation
-    public void start(Register16 mem, boolean verbose,boolean singlestep) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-        active = true;
-        pc = mem.clone();
-        while(active){
-            fetch();
-            decode();
-
-            if(singlestep){
-                print(verbose);
-
-                String y = br.readLine();
-                if( y.equals("Q") || y.equals("q") )
-                    active = false;
-                if( y.equals("B") || y.equals("b") )
-                    singlestep = false;
-                if( y.equals("V") || y.equals("v") )
-                    verbose = true;
-                if( y.equals("NV") || y.equals("nv") )
-                    verbose = false;
-            }
         }
     }
 
@@ -490,14 +543,23 @@ public class Microprocessor {
     // Memory to Register Transfer
 
     private Register8 getData8FromMemory(){
-        Register8 D = memory.get(pc);
+        mar = pc.clone();
         Alu.inr(pc);
-        return D;
+        mbr = memory.get(mar);
+        return mbr.clone();
     }
 
     private Register16 getData16FromMemory(){
         return new Register16(getData8FromMemory(),getData8FromMemory());
     }
+
+    /*
+    private void setData8ToIO( Register8 addr, Register8 data){
+    }
+
+    private Register8 getDataFromIO(){
+    }
+    */
 
     // Push and Pop operations on PC
 

@@ -15,9 +15,8 @@ public class Main {
             memory.load(new Register16(0x8000),asmParser.value());
 
             Microprocessor up = new Microprocessor(memory);
-            up.start(new Register16(0x8000),false,false);
-
-            memory.print(new Register16(0x9000),11);
+            up.start(new Register16(0x8000),true,true);
+            // memory.print(new Register16(0x9000),11);
 
         } catch (ParseException ex){
             System.err.println("Caught MyException: " + ex.getMessage());
