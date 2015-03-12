@@ -1,4 +1,5 @@
 *.class
 *.asm
+*.jar
 asm
-bin
+build

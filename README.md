@@ -1,9 +1,23 @@
-#BOBS
+#BOBS-Simulator
 
 ##Description
-A 8085 Simulator written on Java.
+An 8085 Simulator written on Java.
+
+##Dependencies
+Install Java Development Kit before starting using the following command :
+
+    apt-get install openjdk-7-jdk
+
+After installing the JDK install ant for compiling the project :
+
+    apt-get install ant
 
 ##Compiling and Running
-Get your copy of the simulator and run the program with:
+Check out the latest sources with:
 
-    javac -d bin -Xlint -Xdiags:verbose Main.java && java -classpath bin Main
+    git clone https://github.com/tnagorra/BOBS-Simulator
+
+To compile and run the program run the following :
+
+    ant compile jar run -Darg0='opcodefile' -Darg1='hexdatafile'
+
