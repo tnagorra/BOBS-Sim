@@ -1,4 +1,4 @@
 *.class
 *.asm
 asm
-bin
+bin/
