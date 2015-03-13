@@ -1,14 +1,20 @@
 // TODO
-// Microprocessor States
-// Bus is derivation of Register16
-//
 // IN OUT
 
-// ale
-// Ready, hold, hlda, reset in, reset out, clk
+/*
+   private void setData8ToIO( Register8 addr, Register8 data){
+   }
+
+   private Register8 getDataFromIO(){
+   }
+   */
+
+// ale, Ready, hold, hlda, reset in, reset out, clk
 import java.io.*;
 
 public class Microprocessor {
+    public int clk = 2;
+
     public boolean active;
 
     public boolean iom, read, write;
@@ -17,6 +23,8 @@ public class Microprocessor {
     public boolean sod, sid, m7, m6, m5, i7, i6, i5, ie;
     // Interrupts
     public boolean r7, r6, r5, trap, intr;
+
+    public Register8 busL, busH;
 
     private Register16 mar;
     private Register8 mbr;
@@ -30,9 +38,12 @@ public class Microprocessor {
     private Memory memory;
 
     // Constructor
-    public Microprocessor(Memory mem) {
-        // Initialize memory
-        memory = mem;
+    public Microprocessor() {
+        // Initialize Memory Address Register
+        mar = new Register16(0x0000);
+        // Initialize Memory Buffer Register
+        mbr = new Register8(0x00);
+
         // Initialize instruction register
         ir = new Register8(0x00);
         // Intialize Program Counter
@@ -41,6 +52,10 @@ public class Microprocessor {
         sp = new Register16(0xFFFF);
         // Initialize flags to zero
         flag = new Flag(0x00);
+
+        busH = new Register8(0x00);
+        busL = new Register8(0x00);
+
         // Initialize 8 registers where only 7 will be used
         register = new Register8[8];
         for(int i=0;i<register.length;i++)
@@ -52,10 +67,21 @@ public class Microprocessor {
         ie = true;
     }
 
+    public void setMemory(Memory mem){
+        // Set memory
+        memory = mem;
+    }
+
     // Start the microprocessor operation
     public void start(Register16 mem, boolean verbose,boolean singlestep) throws IOException {
 
-        pc = mem.clone();
+        try {
+            // Sleep to initialize memory device
+            Thread.sleep(10);
+        } catch (InterruptedException i){
+        }
+
+        pc.copy(mem);
         active = true;
 
         while (active){
@@ -78,13 +104,16 @@ public class Microprocessor {
             fetch();
             decode();
         }
-
+        // Release memory/io which are waiting
+        synchronized (this){
+            notifyAll();
+        }
         print(true);
     }
 
     // The fetch cycle
     private void fetch(){
-        ir = getData8FromMemory();
+        ir = getData8FromMemoryPC();
     }
 
     // The decode and execute cycle
@@ -106,19 +135,19 @@ public class Microprocessor {
                 // MVI
                 if (ir.get(2,0) == 0b110){
                     int DDD= ir.get(5,3);
-                    setR(DDD, getData8FromMemory());
+                    setR(DDD, getData8FromMemoryPC());
                 }
                 // LXI
                 else if ( ir.get(3,0) == 0b0001 ){
                     int DD = ir.get(5,4);
                     if( DD == 0b11){
                         // for SP
-                        sp = getData16FromMemory();
+                        sp = getData16FromMemoryPC();
                     }
                     else {
                         // for Rp
-                        setXL(DD, getData8FromMemory() );
-                        setXH(DD, getData8FromMemory() );
+                        setXL(DD, getData8FromMemoryPC() );
+                        setXH(DD, getData8FromMemoryPC() );
                     }
                 }
                 // NOP
@@ -127,25 +156,25 @@ public class Microprocessor {
                 }
                 // LDA
                 else if( ir.get(5,0) == 0b111010 ) {
-                    setA(memory.get( getData16FromMemory() ));
+                    setA(getData8FromMemory( getData16FromMemoryPC() ));
                 }
                 // STA
                 else if( ir.get(5,0) == 0b110010 ) {
-                    memory.set(getData16FromMemory(), getA());
+                    setData8ToMemory(getData16FromMemoryPC(), getA());
                 }
                 // LHLD
                 else if( ir.get(5,0) == 0b101010) {
-                    Register16 addr = getData16FromMemory();
-                    setL(memory.get(addr));
+                    Register16 addr = getData16FromMemoryPC();
+                    setL(getData8FromMemory(addr));
                     Alu.inr(addr);
-                    setH(memory.get(addr));
+                    setH(getData8FromMemory(addr));
                 }
                 // SHLD
                 else if( ir.get(5,0) == 0b100010) {
-                    Register16 addr = getData16FromMemory();
-                    memory.set( addr, getL());
+                    Register16 addr = getData16FromMemoryPC();
+                    setData8ToMemory( addr, getL());
                     Alu.inr(addr);
-                    memory.set(addr, getH());
+                    setData8ToMemory(addr, getH());
                 }
                 // LDAX
                 else if( ir.get(3,0) == 0b1010 ) {
@@ -153,21 +182,21 @@ public class Microprocessor {
                     // in LDAX and STAX it can't have Rp other than BC and DE
                     // but the previous cases of "if" should be sufficient for validation
                     int DDD = ir.get(5,4);
-                    setA( memory.get( getXX(DDD) ));
+                    setA( getData8FromMemory( getXX(DDD) ));
                 }
                 // STAX
                 else if( ir.get(3,0) == 0b0010 ) {
                     int DDD = ir.get(5,4);
-                    memory.set(getXX(DDD) , getA());
+                    setData8ToMemory(getXX(DDD) , getA());
                 }
                 // INR
                 else if( ir.get(2,0) == 0b100 ) {
                     int DDD = ir.get(5,3);
                     if(DDD == 0b110)
-                        register[DDD] = memory.get(getHL());
+                        register[DDD] = getData8FromMemory(getHL());
                     Flag tflag = Alu.inr(register[DDD]);
                     if(DDD == 0b110)
-                        memory.set(getHL(), register[DDD] );
+                        setData8ToMemory(getHL(), register[DDD] );
                     // So that carry flag isn't updated
                     tflag.set("C",flag.get("C"));
                     flag = tflag;
@@ -176,10 +205,10 @@ public class Microprocessor {
                 else if( ir.get(2,0) == 0b101 ) {
                     int DDD = ir.get(5,3);
                     if(DDD == 0b110)
-                        register[DDD] = memory.get(getHL());
+                        register[DDD] = getData8FromMemory(getHL());
                     Flag tflag = Alu.dcr(register[DDD]);
                     if(DDD == 0b110)
-                        memory.set(getHL(), register[DDD] );
+                        setData8ToMemory(getHL(), register[DDD] );
                     // So that carry flag isn't updated
                     tflag.set("C",flag.get("C"));
                     flag = tflag;
@@ -296,7 +325,7 @@ public class Microprocessor {
                 }
                 // Error
                 else {
-                    System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
+                    missed();
                 }
                 break;
 
@@ -343,49 +372,49 @@ public class Microprocessor {
                     flag = Alu.sub( getA().clone() , getR(SSS) , false );
                 }
                 else {
-                    System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
+                    missed();
                 }
                 break;
 
             case 0b11:
                 // ADI
                 if ( ir.get(5,0) == 0b000110 ){
-                    setT( getData8FromMemory());
+                    setT( getData8FromMemoryPC());
                     flag = Alu.add( getA(), getT() , false );
                 }
                 // ACI
                 else if ( ir.get(5,0) == 0b001110 ){
-                    setT( getData8FromMemory());
+                    setT( getData8FromMemoryPC());
                     flag = Alu.add( getA(), getT(), flag.get("C") );
                 }
                 // SUI
                 else if ( ir.get(5,0) == 0b010110 ){
-                    setT( getData8FromMemory());
+                    setT( getData8FromMemoryPC());
                     flag = Alu.sub( getA(), getT(), false );
                 }
                 // SBI
                 else if ( ir.get(5,0) == 0b011110 ){
-                    setT( getData8FromMemory());
+                    setT( getData8FromMemoryPC());
                     flag = Alu.sub( getA(), getT(), flag.get("C") );
                 }
                 // ANI
                 else if ( ir.get(5,0) == 0b100110){
-                    setT( getData8FromMemory());
+                    setT( getData8FromMemoryPC());
                     flag = Alu.and( getA(), getT() );
                 }
                 // XRI
                 else if ( ir.get(5,0) == 0b101110){
-                    setT( getData8FromMemory());
+                    setT( getData8FromMemoryPC());
                     flag = Alu.xor( getA(), getT() );
                 }
                 // ORI
                 else if ( ir.get(5,0) == 0b110110){
-                    setT( getData8FromMemory());
+                    setT( getData8FromMemoryPC());
                     flag = Alu.or( getA(), getT() );
                 }
                 // CPI
                 else if ( ir.get(5,0) == 0b111110 ){
-                    setT( getData8FromMemory());
+                    setT( getData8FromMemoryPC());
                     // Register mustn't be changed
                     flag = Alu.sub( getA().clone() , getT(), false );
                 }
@@ -404,15 +433,15 @@ public class Microprocessor {
                     if( SS == 0b11){
                         // for M
                         Alu.dcr(sp);
-                        memory.set(sp, getA() );
+                        setData8ToMemory(sp, getA() );
                         Alu.dcr(sp);
-                        memory.set(sp, flag );
+                        setData8ToMemory(sp, flag );
                     } else {
                         // for Rp
                         Alu.dcr(sp);
-                        memory.set(sp, getXH(SS) );
+                        setData8ToMemory(sp, getXH(SS) );
                         Alu.dcr(sp);
-                        memory.set(sp, getXL(SS));
+                        setData8ToMemory(sp, getXL(SS));
                     }
                 }
                 // POP
@@ -420,26 +449,26 @@ public class Microprocessor {
                     int DD = ir.get(5,4);
                     if( DD == 0b11){
                         // for M
-                        flag.set(memory.get(sp));
+                        flag.set(getData8FromMemory(sp));
                         Alu.inr(sp);
-                        setA(memory.get(sp));
+                        setA(getData8FromMemory(sp));
                         Alu.inr(sp);
                     } else {
                         // for Rp
-                        setXL( DD, memory.get(sp) );
+                        setXL( DD, getData8FromMemory(sp) );
                         Alu.inr(sp);
-                        setXH( DD, memory.get(sp) );
+                        setXH( DD, getData8FromMemory(sp) );
                         Alu.inr(sp);
                     }
                 }
                 // JMP
                 else if( ir.get(5,0) == 0b000011){
-                    pc = getData16FromMemory();
+                    pc = getData16FromMemoryPC();
                 }
                 // CALL
                 else if( ir.get(5,0) == 0b001101){
                     pushPC();
-                    pc = getData16FromMemory();
+                    pc = getData16FromMemoryPC();
                 }
                 // RST
                 else if( ir.get(2,0) == 0b111){
@@ -462,20 +491,20 @@ public class Microprocessor {
                 else if( ir.get(5,0) == 0b100011){
                     Register16 tadr = sp.clone();
 
-                    Register8 treg = memory.get(tadr);
-                    memory.set( tadr , register[5] );
-                    register[5] = treg.clone();
+                    Register8 treg = getData8FromMemory(tadr);
+                    setData8ToMemory( tadr , register[5] );
+                    register[5].copy(treg);
 
                     Alu.inr(tadr);
 
-                    treg = memory.get(tadr);
-                    memory.set( tadr , register[4] );
-                    register[4] = treg.clone();
+                    treg = getData8FromMemory(tadr);
+                    setData8ToMemory( tadr , register[4] );
+                    register[4].copy(treg);
                 }
                 // JX
                 else if( ir.get(2,0) == 0b010) {
                     if( getCondition( ir.get(5,3) ) ) {
-                        pc = getData16FromMemory();
+                        pc = getData16FromMemoryPC();
                     } else {
                         Alu.inr(pc);
                         Alu.inr(pc);
@@ -485,7 +514,7 @@ public class Microprocessor {
                 else if( ir.get(2,0) == 0b100) {
                     if(getCondition(ir.get(5,3))) {
                         pushPC();
-                        pc = getData16FromMemory();
+                        pc = getData16FromMemoryPC();
                     } else {
                         Alu.inr(pc);
                         Alu.inr(pc);
@@ -514,12 +543,12 @@ public class Microprocessor {
                     //setDataToIO(readData8FromMemory(),getA());
                 }
                 else {
-                    System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
+                    missed();
                 }
                 break;
 
             default:
-                System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
+                missed();
                 break;
         }
     }
@@ -540,39 +569,100 @@ public class Microprocessor {
         }
     }
 
-    // Memory to Register Transfer
+    // Print if any statement is missed
+    public void missed(){
+        System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
+    }
 
-    private Register8 getData8FromMemory(){
-        mar = pc.clone();
-        Alu.inr(pc);
-        mbr = memory.get(mar);
+    // IOM to Register Transfer
+
+    private Register8 getData8(boolean IOM, Register16 address){
+        try {
+            synchronized(memory.up){
+                mar.copy(address);
+                //System.out.print("S ");
+                busH = new Register8(mar.upper());
+                busL = new Register8(mar.lower());
+                iom = IOM;
+                read = true;
+                notify();
+                wait();
+                mbr.copy(busL);
+                read = false;
+            }
+        } catch (InterruptedException i){
+            // caught
+        }
         return mbr.clone();
     }
 
-    private Register16 getData16FromMemory(){
-        return new Register16(getData8FromMemory(),getData8FromMemory());
+    private void setData8(boolean IOM, Register16 address,Register8 value){
+        try {
+            synchronized(memory.up){
+                mar.copy(address);
+                //System.out.print("S ");
+                busH = new Register8(mar.upper());
+                busL = new Register8(mar.lower());
+                iom = IOM;
+                write = true;
+                notify();
+                wait();
+                busL.copy(value);
+                notify();
+                wait();
+                write = false;
+            }
+        } catch (InterruptedException i){
+            // caught
+        }
     }
 
-    /*
-    private void setData8ToIO( Register8 addr, Register8 data){
+    // Memory to Register Transfer
+
+    private Register8 getData8FromMemory(Register16 address){
+        return getData8(false,address);
     }
 
-    private Register8 getDataFromIO(){
+    private void setData8ToMemory(Register16 address, Register8 value){
+        setData8(false,address,value);
     }
-    */
+
+    // IO to Register Transfer
+
+    private Register8 getData8FromIO(Register16 address){
+        return getData8(true,address);
+    }
+
+    private void setData8ToIO(Register16 address, Register8 value){
+        setData8(true,address,value);
+    }
+
+    // Memory to Register Transfer using PC
+
+    private Register8 getData8FromMemoryPC(){
+        Register8 data = getData8FromMemory(pc);
+        Alu.inr(pc);
+        return data;
+    }
+
+    private Register16 getData16FromMemoryPC(){
+        Register8 l = getData8FromMemoryPC();
+        Register8 h = getData8FromMemoryPC();
+        return new Register16(l,h);
+    }
 
     // Push and Pop operations on PC
 
     private void pushPC(){
         Alu.dcr(sp);
-        memory.set(sp, new Register8(pc.upper()));
+        setData8ToMemory(sp, new Register8(pc.upper()));
         Alu.dcr(sp);
-        memory.set(sp, new Register8(pc.lower()));
+        setData8ToMemory(sp, new Register8(pc.lower()));
     }
     private void popPC(){
-        Register8 D2 = memory.get(sp);
+        Register8 D2 = getData8FromMemory(sp);
         Alu.inr(sp);
-        Register8 D1 = memory.get(sp);
+        Register8 D1 = getData8FromMemory(sp);
         Alu.inr(sp);
         pc = new Register16(D2,D1);
     }
@@ -596,11 +686,11 @@ public class Microprocessor {
 
     private void setXH(int DD, Register8 val){
         // CHECK for SP
-        register[DD*2] = val.clone();
+        register[DD*2].copy(val);
     }
     private void setXL(int DD, Register8 val){
         // CHECK for SP
-        register[DD*2+1] = val.clone();
+        register[DD*2+1].copy(val);
     }
     private Register8 getXH(int DD){
         // CHECK for SP
@@ -621,13 +711,13 @@ public class Microprocessor {
     // Register access after decoding
 
     private void setR(int DDD, Register8 value){
-        register[DDD] = value.clone();
+        register[DDD].copy(value);
         if(DDD == 0b110)
-            memory.set( getHL() , register[DDD] );
+            setData8ToMemory( getHL() , register[DDD] );
     }
     private Register8 getR(int DDD){
         if(DDD == 0b110)
-            register[DDD] = memory.get(getHL());
+            register[DDD] = getData8FromMemory(getHL());
         return register[DDD];
     }
 

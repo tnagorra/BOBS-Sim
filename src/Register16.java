@@ -13,5 +13,4 @@ public class Register16 extends Register {
         return new Register16(m_value);
     }
 
-
 }

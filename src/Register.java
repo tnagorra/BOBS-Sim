@@ -75,6 +75,10 @@ public class Register {
         m_value = val & m_maxvalue;
     }
 
+    public void copy(Register reg){
+        set(reg.get());
+    }
+
     // Sets the value of a bit in register
     public void set(int position, boolean value){
         if( position>=m_length || position<0 )
