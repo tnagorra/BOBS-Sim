@@ -10,10 +10,6 @@ class Memory  extends Thread {
             arr[i] = new Register8(0);
     }
 
-    public void setProcessor(Microprocessor micro){
-        up = micro;
-    }
-
     public void load( Register16 position, int[] opcode ){
         for(int i=0;i < opcode.length && i+position.get() < arr.length; i++){
             arr[i+position.get()] = new Register8(opcode[i]);
@@ -63,7 +59,11 @@ class Memory  extends Thread {
                             up.busL = get(taddress);
                             up.notify();
                         } else {
-                            System.out.println("I am here");
+                            if( up.read && up.write){
+                            System.out.print("This is read/write signal error. ");
+                            }
+                            // if both of them are false then this may occur
+                            // when up.wait() was forced to stop
                         }
                     }
                 }
@@ -71,6 +71,4 @@ class Memory  extends Thread {
         } catch (InterruptedException i){
         }
     }
-
-
 }

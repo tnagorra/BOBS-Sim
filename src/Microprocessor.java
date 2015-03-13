@@ -1,15 +1,4 @@
-// TODO
-// IN OUT
-
-/*
-   private void setData8ToIO( Register8 addr, Register8 data){
-   }
-
-   private Register8 getDataFromIO(){
-   }
-   */
-
-// ale, Ready, hold, hlda, reset in, reset out, clk
+// ale, Ready, hold, hlda, clk
 import java.io.*;
 
 public class Microprocessor {
@@ -20,9 +9,10 @@ public class Microprocessor {
     public boolean iom, read, write;
 
     // Interrupt masks
-    public boolean sod, sid, m7, m6, m5, i7, i6, i5, ie;
+    public boolean sod, sid, m7, m6, m5, ie;
     // Interrupts
-    public boolean r7, r6, r5, trap, intr;
+    public boolean r7, r6, r5, trap, intr, inta;
+    public boolean resetin, resetout;
 
     public Register8 busL, busH;
 
@@ -35,7 +25,7 @@ public class Microprocessor {
     private Register8[] register;
     private Flag flag;
 
-    private Memory memory;
+    public Memory memory;
 
     // Constructor
     public Microprocessor() {
@@ -60,64 +50,120 @@ public class Microprocessor {
         register = new Register8[8];
         for(int i=0;i<register.length;i++)
             register[i] = new Register8(0);
-        // Let's not active the microprocessor
-        iom = read = write = false;
-        active = m7 = m6 = m5 = i7 = i6 = i5 = sid = sod = false;
-        r7 = r6 = r5 = trap = intr = false;
-        ie = true;
-    }
 
-    public void setMemory(Memory mem){
-        // Set memory
-        memory = mem;
+        // Some attributes
+        resetout = false;
+        resetin = true;
+        sid = false;
+        sod = false;
+        r7 = r6 = r5 = trap = intr = false;
+        iom = read = write = false;
+        inta = m7 = m6 = m5 = false;
     }
 
     // Start the microprocessor operation
-    public void start(Register16 mem, boolean verbose,boolean singlestep) throws IOException {
+    public void start(Register16 jmpto, boolean verbose,boolean singlestep) throws InterruptedException, IOException {
+        do {
+            // Initiates the microprocessor / restarts it
+            resetHandler(jmpto);
+            // For singlestepping
+            singlestep = interactHandler(verbose,singlestep);
+            // Execute an instruction
+            execute();
+            // Handler interrupts
+            interruptHandler();
+        } while (active);
 
-        try {
-            // Sleep to initialize memory device
-            Thread.sleep(10);
-        } catch (InterruptedException i){
-        }
-
-        pc.copy(mem);
-        active = true;
-
-        while (active){
-            if (singlestep){
-                print(verbose);
-                String y = new BufferedReader(new InputStreamReader(System.in)).readLine();
-                // quit
-                if( y.equals("Q") || y.equals("q") )
-                    active = false;
-                // burst
-                else if( y.equals("B") || y.equals("b") )
-                    singlestep = false;
-                // verbose
-                else if( y.equals("V") || y.equals("v") )
-                    verbose = true;
-                // silent
-                else if( y.equals("S") || y.equals("s") )
-                    verbose = false;
-            }
-            fetch();
-            decode();
-        }
+        // Prints the microprocessor status
+        print(true);
         // Release memory/io which are waiting
         synchronized (this){
             notifyAll();
         }
-        print(true);
     }
 
-    // The fetch cycle
-    private void fetch(){
+    private void resetHandler(Register16 jmpto) throws InterruptedException {
+        if (resetin){
+            resetin = false;
+            resetout = true;
+            Thread.sleep(10);
+            ie = false;
+            //hlda = false;
+            resetout = false;
+            active = true;
+            // Load PC
+            pc.copy(jmpto);
+        }
+    }
+
+    private boolean interactHandler(boolean verbose, boolean singlestep) throws IOException {
+        if (singlestep){
+            print(verbose);
+            String y = new BufferedReader(new InputStreamReader(System.in)).readLine();
+            // quit
+            if( y.equals("Q") || y.equals("q") )
+                active = false;
+            // burst
+            else if( y.equals("B") || y.equals("b") )
+                singlestep = false;
+            // verbose
+            else if( y.equals("V") || y.equals("v") )
+                verbose = true;
+            // silent
+            else if( y.equals("S") || y.equals("s") )
+                verbose = false;
+        }
+        return singlestep;
+    }
+
+    private void interruptHandler() throws InterruptedException {
+        if( trap ){
+            trap = false;
+            pushPC();
+            pc = new Register16( 0x0024 );
+        } else if ( ie ) {
+            if ( r7 && !m7 ){
+                r7 = false;
+                inta = true;
+                pushPC();
+                pc = new Register16( 0x003C );
+                inta = false;
+            } else if( r6 && !m6 ){
+                r6 = false;
+                inta = true;
+                pushPC();
+                pc = new Register16( 0x0034 );
+                inta = false;
+            } else if( r5 && !m5){
+                r5 = false;
+                inta = true;
+                pushPC();
+                pc = new Register16( 0x002C );
+                inta = false;
+            } else if( intr )  {
+                synchronized(this){
+                    intr = false;
+                    inta = true;
+                    Register8 h,l;
+                    notify();
+                    wait();
+                    l = busL.clone();
+                    notify();
+                    wait();
+                    h = busL.clone();
+                    inta = false;
+                    pushPC();
+                    pc = new Register16(l,h);
+                }
+            }
+        }
+    }
+
+    // The fetch, decode and execute cycle
+    private void execute(){
+        // Fetch
         ir = getData8FromMemoryPC();
-    }
 
-    // The decode and execute cycle
-    private void decode(){
         switch( ir.get(7,6) ){
             case 0b01:
                 // HLT
@@ -306,9 +352,9 @@ public class Microprocessor {
                     getA().set(2,m7);
                     getA().set(3,ie);
 
-                    getA().set(4,i5);
-                    getA().set(5,i6);
-                    getA().set(6,i7);
+                    getA().set(4,r5);
+                    getA().set(5,r6);
+                    getA().set(6,r7);
                     getA().set(7,sid);
                 }
                 // SIM
@@ -553,32 +599,11 @@ public class Microprocessor {
         }
     }
 
-    // Print the status of the program
-    public void print(boolean verbose){
-        if(verbose){
-            flag.print();
-            System.out.println("PSW\t: "+register[7].hex()+" "+flag.hex());
-            System.out.println("BC\t: "+register[0].hex()+" "+register[1].hex());
-            System.out.println("DE\t: "+register[2].hex()+" "+register[3].hex());
-            System.out.println("HL\t: "+register[4].hex()+" "+register[5].hex());
-        }
-        System.out.println("IR\t: "+ir.hex());
-        System.out.println("PC\t: "+pc.hex());
-        if(verbose){
-            System.out.println("SP\t: "+sp.hex());
-        }
-    }
-
-    // Print if any statement is missed
-    public void missed(){
-        System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
-    }
-
     // IOM to Register Transfer
 
     private Register8 getData8(boolean IOM, Register16 address){
         try {
-            synchronized(memory.up){
+            synchronized(this){
                 mar.copy(address);
                 //System.out.print("S ");
                 busH = new Register8(mar.upper());
@@ -598,7 +623,7 @@ public class Microprocessor {
 
     private void setData8(boolean IOM, Register16 address,Register8 value){
         try {
-            synchronized(memory.up){
+            synchronized(this){
                 mar.copy(address);
                 //System.out.print("S ");
                 busH = new Register8(mar.upper());
@@ -649,22 +674,6 @@ public class Microprocessor {
         Register8 l = getData8FromMemoryPC();
         Register8 h = getData8FromMemoryPC();
         return new Register16(l,h);
-    }
-
-    // Push and Pop operations on PC
-
-    private void pushPC(){
-        Alu.dcr(sp);
-        setData8ToMemory(sp, new Register8(pc.upper()));
-        Alu.dcr(sp);
-        setData8ToMemory(sp, new Register8(pc.lower()));
-    }
-    private void popPC(){
-        Register8 D2 = getData8FromMemory(sp);
-        Alu.inr(sp);
-        Register8 D1 = getData8FromMemory(sp);
-        Alu.inr(sp);
-        pc = new Register16(D2,D1);
     }
 
 
@@ -721,6 +730,22 @@ public class Microprocessor {
         return register[DDD];
     }
 
+    // Push and Pop operations on PC
+
+    private void pushPC(){
+        Alu.dcr(sp);
+        setData8ToMemory(sp, new Register8(pc.upper()));
+        Alu.dcr(sp);
+        setData8ToMemory(sp, new Register8(pc.lower()));
+    }
+    private void popPC(){
+        Register8 D2 = getData8FromMemory(sp);
+        Alu.inr(sp);
+        Register8 D1 = getData8FromMemory(sp);
+        Alu.inr(sp);
+        pc = new Register16(D2,D1);
+    }
+
     // Some generic register access functions
 
     private Register16 getHL(){
@@ -752,5 +777,27 @@ public class Microprocessor {
     private Register8 getT(){
         return register[6];
     }
+
+    // Print the status of the program
+    public void print(boolean verbose){
+        if(verbose){
+            flag.print();
+            System.out.println("PSW\t: "+register[7].hex()+" "+flag.hex());
+            System.out.println("BC\t: "+register[0].hex()+" "+register[1].hex());
+            System.out.println("DE\t: "+register[2].hex()+" "+register[3].hex());
+            System.out.println("HL\t: "+register[4].hex()+" "+register[5].hex());
+        }
+        System.out.println("IR\t: "+ir.hex());
+        System.out.println("PC\t: "+pc.hex());
+        if(verbose){
+            System.out.println("SP\t: "+sp.hex());
+        }
+    }
+
+    // Print if any statement is missed
+    public void missed(){
+        System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
+    }
+
 
 }
