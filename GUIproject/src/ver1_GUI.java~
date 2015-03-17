@@ -205,54 +205,54 @@ public class ver1_GUI {
 		
 		PPI_panel.add(lblPpi);
 		
-		final JToggleButton tglbtnPorta = new JToggleButton("Mode");
-		
-		tglbtnPorta.setBounds(143, 65, 73, 25);
-		tglbtnPorta.setToolTipText("Select the mode of Port A");
-		PPI_panel.add(tglbtnPorta);
-		tglbtnPorta.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				// TODO Auto-generated method stub
-	
-				if (tglbtnPorta.isSelected()){
-					tglbtnPorta.setText("IN");
-					PortAtxt.setEditable(true);
-				} else {
-					tglbtnPorta.setText("OUT");
-					PortAtxt.setEditable(false);
-				}
-			}
-							
-			});
-		
-		final JToggleButton tglbtnPortb = new JToggleButton("Mode");
-		
-		tglbtnPortb.setBounds(143, 112, 73, 25);
-		tglbtnPortb.setToolTipText("Select the mode of Port B");
-		PPI_panel.add(tglbtnPortb);
-		tglbtnPortb.addChangeListener(new ChangeListener(){
+//		final JToggleButton tglbtnPorta = new JToggleButton("Mode");
+//		
+//		tglbtnPorta.setBounds(143, 65, 73, 25);
+//		tglbtnPorta.setToolTipText("Select the mode of Port A");
+//		PPI_panel.add(tglbtnPorta);
+//		tglbtnPorta.addChangeListener(new ChangeListener() {
+//			@Override
+//			public void stateChanged(ChangeEvent e) {
+//				// TODO Auto-generated method stub
+//	
+//				if (tglbtnPorta.isSelected()){
+//					tglbtnPorta.setText("IN");
+//					PortAtxt.setEditable(true);
+//				} else {
+//					tglbtnPorta.setText("OUT");
+//					PortAtxt.setEditable(false);
+//				}
+//			}
+//							
+//			});
+//		
+//		final JToggleButton tglbtnPortb = new JToggleButton("Mode");
+//		
+//		tglbtnPortb.setBounds(143, 112, 73, 25);
+//		tglbtnPortb.setToolTipText("Select the mode of Port B");
+//		PPI_panel.add(tglbtnPortb);
+//		tglbtnPortb.addChangeListener(new ChangeListener(){
 
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-				// TODO Auto-generated method stub
-				if (tglbtnPortb.isSelected()){
-					tglbtnPortb.setText("IN");
-					PortBTxt.setEditable(true);
-				} else {
-					tglbtnPortb.setText("OUT");
-					PortBTxt.setEditable(false);
-				}
-				
-			}
-			
-			
-		});
-		
-		final JToggleButton tglbtnPortc = new JToggleButton("Mode");
-		tglbtnPortc.setBounds(143, 154, 73, 25);
-		tglbtnPortc.setToolTipText("Select the mode of Port C");
-		PPI_panel.add(tglbtnPortc);
+//			@Override
+//			public void stateChanged(ChangeEvent arg0) {
+//				// TODO Auto-generated method stub
+//				if (tglbtnPortb.isSelected()){
+//					tglbtnPortb.setText("IN");
+//					PortBTxt.setEditable(true);
+//				} else {
+//					tglbtnPortb.setText("OUT");
+//					PortBTxt.setEditable(false);
+//				}
+//				
+//			}
+//			
+//			
+//		});
+//		
+//		final JToggleButton tglbtnPortc = new JToggleButton("Mode");
+//		tglbtnPortc.setBounds(143, 154, 73, 25);
+//		tglbtnPortc.setToolTipText("Select the mode of Port C");
+//		PPI_panel.add(tglbtnPortc);
 		
 		JLabel lblPortA = new JLabel("Port A");
 		lblPortA.setBounds(12, 70, 51, 15);
