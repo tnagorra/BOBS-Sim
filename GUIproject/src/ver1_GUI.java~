@@ -253,6 +253,22 @@ public class ver1_GUI {
 //		tglbtnPortc.setBounds(143, 154, 73, 25);
 //		tglbtnPortc.setToolTipText("Select the mode of Port C");
 //		PPI_panel.add(tglbtnPortc);
+//		tglbtnPortc.addChangeListener(new ChangeListener(){
+
+//			@Override
+//			public void stateChanged(ChangeEvent e) {
+//				// TODO Auto-generated method stub
+//				if (tglbtnPortc.isSelected()){
+//					tglbtnPortc.setText("IN");
+//					PortCtxt.setEditable(true);
+//				} else {
+//					tglbtnPortc.setText("OUT");
+//					PortCtxt.setEditable(false);
+//				}
+//				
+//			}
+//			
+//		});
 		
 		JLabel lblPortA = new JLabel("Port A");
 		lblPortA.setBounds(12, 70, 51, 15);
@@ -265,40 +281,25 @@ public class ver1_GUI {
 		JLabel lblPortC = new JLabel("Port C");
 		lblPortC.setBounds(12, 159, 51, 15);
 		PPI_panel.add(lblPortC);
-		tglbtnPortc.addChangeListener(new ChangeListener(){
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				// TODO Auto-generated method stub
-				if (tglbtnPortc.isSelected()){
-					tglbtnPortc.setText("IN");
-					PortCtxt.setEditable(true);
-				} else {
-					tglbtnPortc.setText("OUT");
-					PortCtxt.setEditable(false);
-				}
-				
-			}
-			
-		});
+		
 		
 
 		PortAtxt = new JTextField();
 		PortAtxt.setEditable(false);
-		PortAtxt.setBounds(61, 68, 70, 19);
+		PortAtxt.setBounds(120, 68, 70, 19);
 		PPI_panel.add(PortAtxt);
 		PortAtxt.setColumns(10);
 		
 		PortBTxt = new JTextField();
 		PortBTxt.setEditable(false);
-		PortBTxt.setBounds(61, 115, 70, 19);
+		PortBTxt.setBounds(120, 115, 70, 19);
 		PPI_panel.add(PortBTxt);
 		PortBTxt.setColumns(10);
 		
 		PortCtxt = new JTextField();
 		PortCtxt.setEditable(false);
 		PortCtxt.setColumns(10);
-		PortCtxt.setBounds(61, 157, 70, 19);
+		PortCtxt.setBounds(120, 157, 70, 19);
 		PPI_panel.add(PortCtxt);
 		
 		JScrollPane Message_scrollPane = new JScrollPane();

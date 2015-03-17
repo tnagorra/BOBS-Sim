@@ -302,6 +302,10 @@ public class ver1_GUI {
 		PortCtxt.setBounds(120, 157, 70, 19);
 		PPI_panel.add(PortCtxt);
 		
+		JButton btnUpdate = new JButton("Update");
+		btnUpdate.setBounds(61, 198, 117, 25);
+		PPI_panel.add(btnUpdate);
+		
 		JScrollPane Message_scrollPane = new JScrollPane();
 		Message_scrollPane.setBounds(0, 500, 1200, 199);
 		Message_scrollPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
