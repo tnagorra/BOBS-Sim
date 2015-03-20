@@ -48,7 +48,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JProgressBar;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
@@ -92,8 +91,11 @@ public class ver1_GUI {
 
 					ver1_GUI window = new ver1_GUI();
 					window.frame.setVisible(true);
+
+					
 					UIManager.setLookAndFeel(
-	                        UIManager.getSystemLookAndFeelClassName());
+	                UIManager.getSystemLookAndFeelClassName());
+				
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
