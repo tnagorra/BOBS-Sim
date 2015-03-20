@@ -189,6 +189,7 @@ public class ver1_GUI {
 		Mem_Address.setBounds(113, 62, 70, 25);
 		Mem_Address.setToolTipText("Memory location");
 		Mem_Address.setText("0000");
+		Mem_Address.setHorizontalAlignment(JTextField.CENTER);
 		Mem_Address.setEditable(false);
 		Mem_Address.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		Mem_Address.setBackground(UIManager.getColor("Button.highlight"));
@@ -199,6 +200,7 @@ public class ver1_GUI {
 		Mem_value.setBounds(113, 129, 70, 25);
 		Mem_value.setToolTipText("Edit new value and click update");
 		Mem_value.setText("0000");
+		Mem_value.setHorizontalAlignment(JTextField.CENTER);
 		Mem_value.setEditable(false);
 		Mem_value.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		Mem_value.setBackground(UIManager.getColor("Button.highlight"));
@@ -255,8 +257,9 @@ public class ver1_GUI {
 		
 		PSWH = new JTextField();
 		PSWH.setBackground(UIManager.getColor("Button.background"));
-		PSWH.setBorder(new EmptyBorder(0, 0, 0, 0));
+		PSWH.setBorder(null);
 		PSWH.setText("00");
+		PSWH.setHorizontalAlignment(JTextField.CENTER);
 		PSWH.setEditable(false);
 		PSWH.setBounds(99, 42, 29, 19);
 		Reg_panel.add(PSWH);
@@ -264,7 +267,8 @@ public class ver1_GUI {
 		
 		PSWL = new JTextField();
 		PSWL.setBackground(UIManager.getColor("Button.background"));
-		PSWL.setBorder(new EmptyBorder(0, 0, 0, 0));
+		PSWL.setBorder(null);
+		PSWL.setHorizontalAlignment(JTextField.CENTER);
 		PSWL.setText("00");
 		PSWL.setEditable(false);
 		PSWL.setColumns(10);
@@ -273,7 +277,8 @@ public class ver1_GUI {
 		
 		B = new JTextField();
 		B.setBackground(UIManager.getColor("Button.background"));
-		B.setBorder(new EmptyBorder(0, 0, 0, 0));
+		B.setBorder(null);
+		B.setHorizontalAlignment(JTextField.CENTER);
 		B.setText("00");
 		B.setEditable(false);
 		B.setColumns(10);
@@ -281,8 +286,9 @@ public class ver1_GUI {
 		Reg_panel.add(B);
 		
 		C = new JTextField();
-		C.setBorder(new EmptyBorder(0, 0, 0, 0));
+		C.setBorder(null);
 		C.setBackground(UIManager.getColor("Button.background"));
+		C.setHorizontalAlignment(JTextField.CENTER);
 		C.setText("00");
 		C.setEditable(false);
 		C.setColumns(10);
@@ -291,35 +297,39 @@ public class ver1_GUI {
 		
 		D = new JTextField();
 		D.setBackground(UIManager.getColor("Button.background"));
-		D.setBorder(new EmptyBorder(0, 0, 0, 0));
+		D.setBorder(null);
 		D.setText("00");
+		D.setHorizontalAlignment(JTextField.CENTER);
 		D.setEditable(false);
 		D.setColumns(10);
 		D.setBounds(99, 83, 29, 19);
 		Reg_panel.add(D);
 		
 		E = new JTextField();
-		E.setBorder(new EmptyBorder(0, 0, 0, 0));
+		E.setBorder(null);
 		E.setBackground(UIManager.getColor("Button.background"));
 		E.setText("00");
+		E.setHorizontalAlignment(JTextField.CENTER);
 		E.setEditable(false);
 		E.setColumns(10);
 		E.setBounds(140, 83, 28, 19);
 		Reg_panel.add(E);
 		
 		H = new JTextField();
-		H.setBorder(new EmptyBorder(0, 0, 0, 0));
+		H.setBorder(null);
 		H.setBackground(UIManager.getColor("Button.background"));
 		H.setText("00");
+		H.setHorizontalAlignment(JTextField.CENTER);
 		H.setEditable(false);
 		H.setColumns(10);
 		H.setBounds(99, 105, 29, 19);
 		Reg_panel.add(H);
 		
 		L = new JTextField();
-		L.setBorder(new EmptyBorder(0, 0, 0, 0));
+		L.setBorder(null);
 		L.setBackground(UIManager.getColor("Button.background"));
 		L.setText("00");
+		L.setHorizontalAlignment(JTextField.CENTER);
 		L.setEditable(false);
 		L.setColumns(10);
 		L.setBounds(140, 105, 29, 19);
@@ -327,7 +337,8 @@ public class ver1_GUI {
 		
 		SP = new JTextField();
 		SP.setBackground(UIManager.getColor("Button.background"));
-		SP.setBorder(new EmptyBorder(0, 0, 0, 0));
+		SP.setBorder(null);
+		SP.setHorizontalAlignment(JTextField.CENTER);
 		SP.setText("00");
 		SP.setEditable(false);
 		SP.setColumns(10);
@@ -336,17 +347,19 @@ public class ver1_GUI {
 		
 		IR = new JTextField();
 		IR.setBackground(UIManager.getColor("Button.background"));
-		IR.setBorder(new EmptyBorder(0, 0, 0, 0));
+		IR.setBorder(null);
+		IR.setHorizontalAlignment(JTextField.CENTER);
 		IR.setText("00");
 		IR.setEditable(false);
 		IR.setColumns(10);
-		IR.setBounds(99, 165, 29, 19);
+		IR.setBounds(120, 165, 29, 19);
 		Reg_panel.add(IR);
 		
 		PC = new JTextField();
 		PC.setBounds(99, 144, 70, 19);
 		Reg_panel.add(PC);
-		PC.setBorder(new EmptyBorder(0, 0, 0, 0));
+		PC.setHorizontalAlignment(JTextField.CENTER);
+		PC.setBorder(null);
 		PC.setBackground(UIManager.getColor("Button.background"));
 		PC.setText("00");
 		PC.setEditable(false);
@@ -355,10 +368,11 @@ public class ver1_GUI {
 		FLAG = new JTextField();
 		FLAG.setHorizontalAlignment(SwingConstants.CENTER);
 		FLAG.setEditable(false);
+		FLAG.setHorizontalAlignment(JTextField.CENTER);
 		FLAG.setColumns(10);
 		FLAG.setBorder(new EmptyBorder(0, 0, 0, 0));
 		FLAG.setBackground(UIManager.getColor("Button.background"));
-		FLAG.setBounds(43, 196, 124, 19);
+		FLAG.setBounds(53, 196, 124, 19);
 		Reg_panel.add(FLAG);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -514,21 +528,40 @@ public class ver1_GUI {
 						 
 						 up.startonce(new Register16(0x8000),false,false);
 			            	PSWH.setText( up.register[7].hex());
+			            	PSWH.setHorizontalAlignment(JTextField.CENTER);
+			            	
 			            	PSWL.setText( up.flag.hex() );
+			            	PSWL.setHorizontalAlignment(JTextField.CENTER);
 			            	
 			            	PC.setText( up.pc.hex());
+			            	PC.setHorizontalAlignment(JTextField.CENTER);
+			            	
 			            	SP.setText( up.sp.hex());
+			            	SP.setHorizontalAlignment(JTextField.CENTER);
+			            	
 			            	IR.setText( up.ir.hex());
+			            	IR.setHorizontalAlignment(JTextField.CENTER);
 			            	
 			            	B.setText( up.register[0].hex());
+			            	B.setHorizontalAlignment(JTextField.CENTER);
+			            	
 			            	C.setText( up.register[1].hex());
+			            	C.setHorizontalAlignment(JTextField.CENTER);
+			            	
 			            	D.setText( up.register[2].hex());
-			            
+			            	D.setHorizontalAlignment(JTextField.CENTER);
+			            	
 			            	E.setText( up.register[3].hex());
+			            	E.setHorizontalAlignment(JTextField.CENTER);
+			            	
 			            	H.setText( up.register[4].hex());
+			            	H.setHorizontalAlignment(JTextField.CENTER);
+			            	
 			            	L.setText( up.register[5].hex());
+			            	L.setHorizontalAlignment(JTextField.CENTER);
 			            	
 			            	FLAG.setText( up.flag.value());
+			            	FLAG.setHorizontalAlignment(JTextField.CENTER);
 			            	
 			            up.release();
 			            // up.print(true);
