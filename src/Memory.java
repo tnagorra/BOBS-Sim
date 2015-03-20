@@ -42,10 +42,13 @@ class Memory  extends Thread {
     public void run(){
         try {
             synchronized(up){
-                while( !up.active )
-                    Thread.sleep(1);
+                System.out.println("Waiting microprocessor");
+                up.wait();
+                System.out.println("Found microprocessor");
+                //up.notify();
                 while( up.active ){
                     up.wait();
+                    //up.notify();
                     if( up.iom == false) {
                         if ( up.write == true ){
                             Register16 taddress = new Register16(up.busL, up.busH);
@@ -67,6 +70,7 @@ class Memory  extends Thread {
                         }
                     }
                 }
+                System.out.println("Memory released!");
             }
         } catch (InterruptedException i){
         }
