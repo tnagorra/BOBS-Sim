@@ -33,14 +33,17 @@ public class Flag extends Register8 {
     // DEBUGGING
 
     // Displays the flag
-    public void print() {
+    public String value() {
         String flags = "";
         if( get("C") ) flags += "C ";
         if( get("P") ) flags += "P ";
         if( get("AC") ) flags += "AC ";
         if( get("Z") ) flags += "Z ";
         if( get("S") ) flags += "S ";
+        return flags;
+        /*
         if( !flags.equals(""))
             System.out.println(flags);
+            */
     }
 }

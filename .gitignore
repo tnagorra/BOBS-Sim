@@ -1,6 +1,9 @@
-*.class
 *.asm
 *.jar
-asm
-build
+*.class
+*.jar~
+*.class~
+*.java~
+asm/
+build/
 bin/
