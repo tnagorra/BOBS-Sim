@@ -12,15 +12,11 @@ public class Main {
 
             Microprocessor up = new Microprocessor();
             Memory memory = new Memory(65536);
-            memory.load(new Register16(0x9000),dataParser.value());
-            memory.load(new Register16(0x8000),asmParser.value());
-
             Connector.connect(up,memory);
-
+            memory.load(new Register16(0x9000),dataParser.value());
+            memory.load(new Register16(0x8000),asmParser.value());        
             memory.start();
             up.start(new Register16(0x8000),false,false);
-
-            // memory.print(new Register16(0x9000),11);
 
         } catch (ParseException ex){
             System.err.println("Caught MyException: " + ex.getMessage());

@@ -19,11 +19,11 @@ public class Microprocessor {
     private Register16 mar;
     private Register8 mbr;
 
-    private Register8 ir;
-    private Register16 pc, sp;
+    public Register8 ir;
+    public Register16 pc, sp;
 
-    private Register8[] register;
-    private Flag flag;
+    public Register8[] register;
+    public Flag flag;
 
     public Memory memory;
 
@@ -64,39 +64,67 @@ public class Microprocessor {
     // Start the microprocessor operation
     public void start(Register16 jmpto, boolean verbose,boolean singlestep) throws InterruptedException, IOException {
         do {
+        	
             // Initiates the microprocessor / restarts it
             resetHandler(jmpto);
-            // For singlestepping
+            // For single stepping
             singlestep = interactHandler(verbose,singlestep);
             // Execute an instruction
             execute();
             // Handler interrupts
             interruptHandler();
+            Thread.sleep(1);
         } while (active);
-
-        // Prints the microprocessor status
-        print(true);
+        
+    }
+    
+    public void release(){
         // Release memory/io which are waiting
         synchronized (this){
             notifyAll();
         }
     }
+    
+
+     // Start the microprocessor operation
+    public void startonce(Register16 jmpto, boolean verbose,boolean singlestep) throws InterruptedException, IOException {
+            // Initiates the microprocessor / restarts it
+            resetHandler(jmpto);
+            // For single stepping
+            singlestep = interactHandler(verbose,singlestep);
+            // Execute an instruction
+            execute();
+            // Handler interrupts
+            interruptHandler();
+            
+            // So that microprocessor can run again
+            if(!active)
+            	resetin = true;
+    }
+
 
     private void resetHandler(Register16 jmpto) throws InterruptedException {
         if (resetin){
-            resetin = false;
-            resetout = true;
+        	Thread.sleep(10);
+            synchronized (this){
+            	 
+            	resetin = false;
+                resetout = true;
+                ie = false;
+                //hlda = false;
+                resetout = false;
+                active = true;
+                   
+            	System.out.println("Notifying Peripherals");
+            	notifyAll();
+            }
             Thread.sleep(10);
-            ie = false;
-            //hlda = false;
-            resetout = false;
-            active = true;
             // Load PC
             pc.copy(jmpto);
         }
     }
 
-    private boolean interactHandler(boolean verbose, boolean singlestep) throws IOException {
+    private boolean interactHandler(boolean verbose, boolean singlestep) throws IOException, InterruptedException {
         if (singlestep){
             print(verbose);
             String y = new BufferedReader(new InputStreamReader(System.in)).readLine();
