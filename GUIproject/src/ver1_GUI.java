@@ -48,13 +48,13 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JProgressBar;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
 
 public class ver1_GUI {
 
+<<<<<<< HEAD
     private JFrame frame;
     private JTextField Mem_Address;
     private JTextField Mem_value;
