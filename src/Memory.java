@@ -4,21 +4,21 @@ class Memory  extends Thread {
 
     Register8[] arr;
 
-    public Memory(int size){
+    public Memory(int size) {
         arr= new Register8[size];
-        for(int i=0;i<arr.length;i++)
+        for(int i=0; i<arr.length; i++)
             arr[i] = new Register8(0);
     }
 
-    public void load( Register16 position, int[] opcode ){
-        for(int i=0;i < opcode.length && i+position.get() < arr.length; i++){
+    public void load( Register16 position, int[] opcode ) {
+        for(int i=0; i < opcode.length && i+position.get() < arr.length; i++) {
             arr[i+position.get()] = new Register8(opcode[i]);
         }
     }
 
-    public void print( Register16 position, int total){
+    public void print( Register16 position, int total) {
         System.out.print( position.hex()+ " : ");
-        for(int i=0;i < total && i+position.get() < arr.length; i++){
+        for(int i=0; i < total && i+position.get() < arr.length; i++) {
             System.out.print(arr[i+position.get()].hex()+" ");
         }
         System.out.print("\n");
@@ -39,40 +39,38 @@ class Memory  extends Thread {
     }
 
 
-    public void run(){
+    public void run() {
         try {
-            synchronized(up){
-                System.out.println("Waiting microprocessor");
-                up.wait();
-                System.out.println("Found microprocessor");
-                //up.notify();
-                while( up.active ){
+            synchronized(up) {
+                System.out.println("Memory started!");
+                while( true  ) {
+                    // Wait for some signal
                     up.wait();
-                    //up.notify();
                     if( up.iom == false) {
-                        if ( up.write == true ){
+                        if ( up.write == true ) {
                             Register16 taddress = new Register16(up.busL, up.busH);
                             up.notify();
                             up.wait();
                             Register8 tdata = up.busL.clone();
                             set(taddress,tdata);
                             up.notify();
-                        } else if ( up.read == true ){
+                        } else if ( up.read == true ) {
                             Register16 taddress = new Register16(up.busL, up.busH);
                             up.busL = get(taddress);
                             up.notify();
                         } else {
-                            if( up.read && up.write){
-                            System.out.print("This is read/write signal error. ");
+                            if( up.read && up.write) {
+                                System.out.print("This is read/write signal error. ");
                             }
                             // if both of them are false then this may occur
                             // when up.wait() was forced to stop
                         }
                     }
                 }
-                System.out.println("Memory released!");
             }
-        } catch (InterruptedException i){
+        } catch (InterruptedException i) {
+            System.out.println("Memory released!");
         }
     }
 }
+

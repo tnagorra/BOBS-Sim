@@ -26,6 +26,13 @@ class Parser extends Tokenizer {
         return tokenValue;
     }
 
+    public String content(){
+        String output = new String();
+        for ( int val:tokenValue)
+            output += new Register8(val).hex()+" ";
+        return output;
+    }
+
     // Find the opcode values in Hashmap and change those values
     private void translateOpcode() {
         for(int i=0;i<tokens.length;i++){
@@ -61,7 +68,7 @@ class Parser extends Tokenizer {
         // UnTokenize everything between ";" and "\n"
         {";.*\n", "\n"},
         // Tokenize a 16 bit number to two 8 bit pair
-        {"[ +,]([0-9A-F][0-9A-F])([(0-9A-F][0-9A-F])[H]? *\n", " $2 $1\n"},
+        {"[ +,]([0-9A-F][0-9A-F])([(0-9A-F][0-9A-F])[H]? *", " $2 $1\n"},
         // Tokenize a 8 bit number
         {"[ +,]([0-9A-F][0-9A-F])[H]? *\n", " $1\n"},
 

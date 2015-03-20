@@ -5,7 +5,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JToolBar;
 import javax.swing.JButton;
-
+import javax.swing.Timer;
 import java.awt.Point;
 
 import javax.swing.SwingConstants;
@@ -54,7 +54,6 @@ import javax.swing.border.EmptyBorder;
 
 public class ver1_GUI {
 
-<<<<<<< HEAD
     private JFrame frame;
     private JTextField Mem_Address;
     private JTextField Mem_value;
@@ -75,24 +74,29 @@ public class ver1_GUI {
     private JTextField P;
     private JTextField C_flag;
 
-    Microprocessor up;
-    Memory memory;
     private JTextField FLAG;
     private JTextField textField;
     private JTextField textField_1;
     private JTextField textField_2;
 
+    Microprocessor up;
+    Memory memory;
+
     /**
      * Launch the application.
      */
     public static void main(String[] args) {
+
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
+                    // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
                     ver1_GUI window = new ver1_GUI();
                     window.frame.setVisible(true);
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    window.updateRegisters();
+
+                    // updateRegisters();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -100,18 +104,31 @@ public class ver1_GUI {
         });
     }
 
+    public void updateRegisters() {
+        PC.setText( up.pc.hex());
+        SP.setText( up.sp.hex());
+        IR.setText( up.ir.hex());
+        B.setText( up.register[0].hex());
+        C.setText( up.register[1].hex());
+        D.setText( up.register[2].hex());
+        E.setText( up.register[3].hex());
+        H.setText( up.register[4].hex());
+        L.setText( up.register[5].hex());
+        PSWH.setText( up.register[7].hex());
+        PSWL.setText( up.flag.hex() );
+        FLAG.setText( up.flag.value());
+    }
+
     /**
      * Create the application.
      */
-    public ver1_GUI() {
-
-        //String filename = (args.length > 0) ? args[0] : "asm/test.asm";
-        //String datafilename = (args.length > 1) ? args[1] : "asm/testdata.asm";
-        //Parser asmParser = new Parser(filename,true,"asm");
-        //Parser dataParser = new Parser(datafilename,true,"data");
+    public ver1_GUI() throws IOException {
 
         up = new Microprocessor();
-
+        memory = new Memory(65536);
+        Connector.connect(up,memory);
+        memory.start();
+        up.start();
 
         initialize();
     }
@@ -119,7 +136,7 @@ public class ver1_GUI {
     /**
      * Initialize the contents of the frame.
      */
-    private void initialize() {
+    private void initialize() throws IOException {
         frame = new JFrame();
         frame.setBackground(UIManager.getColor("Button.background"));
         frame.setBounds(0, 0, 1200, 700);
@@ -130,33 +147,8 @@ public class ver1_GUI {
         JPanel tools_panel = new JPanel();
         tools_panel.setBounds(0, 0, 1201, 33);
         tools_panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-        frame.getContentPane().add(tools_panel);
-
-
-
-        JButton close = new JButton();
-        close.setBounds(547, 5, 39, 25);
-
-        close.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent ess) {
-
-            }
-        });
-        close.setToolTipText("Stop");
-        try {
-            Image imgs = ImageIO.read(getClass().getResource("stop1.png"));
-            close.setIcon(new ImageIcon(imgs));
-        } catch  (IOException ex) {}
         tools_panel.setLayout(null);
-        close.setBorder(null);
-        tools_panel.add(close);
-        try {
-            Image imgs = ImageIO.read(getClass().getResource("prev.png"));
-        } catch  (IOException ex) {}
-        try {
-            Image imgs = ImageIO.read(getClass().getResource("next.png"));
-        } catch  (IOException ex) {}
+        frame.getContentPane().add(tools_panel);
 
         JScrollPane Message_scrollPane = new JScrollPane();
         Message_scrollPane.setBounds(0, 500, 1200, 199);
@@ -368,6 +360,45 @@ public class ver1_GUI {
         FLAG.setBounds(53, 196, 124, 19);
         Reg_panel.add(FLAG);
 
+
+        PSWH.setText( up.register[7].hex());
+        PSWH.setHorizontalAlignment(JTextField.CENTER);
+
+        PSWL.setText( up.flag.hex() );
+        PSWL.setHorizontalAlignment(JTextField.CENTER);
+
+        PC.setText( up.pc.hex());
+        PC.setHorizontalAlignment(JTextField.CENTER);
+
+        SP.setText( up.sp.hex());
+        SP.setHorizontalAlignment(JTextField.CENTER);
+
+        IR.setText( up.ir.hex());
+        IR.setHorizontalAlignment(JTextField.CENTER);
+
+        B.setText( up.register[0].hex());
+        B.setHorizontalAlignment(JTextField.CENTER);
+
+        C.setText( up.register[1].hex());
+        C.setHorizontalAlignment(JTextField.CENTER);
+
+        D.setText( up.register[2].hex());
+        D.setHorizontalAlignment(JTextField.CENTER);
+
+        E.setText( up.register[3].hex());
+        E.setHorizontalAlignment(JTextField.CENTER);
+
+        H.setText( up.register[4].hex());
+        H.setHorizontalAlignment(JTextField.CENTER);
+
+        L.setText( up.register[5].hex());
+        L.setHorizontalAlignment(JTextField.CENTER);
+
+        FLAG.setText( up.flag.value());
+        FLAG.setHorizontalAlignment(JTextField.CENTER);
+
+
+
         JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         tabbedPane.setBounds(244, 32, 750, 466);
@@ -377,201 +408,109 @@ public class ver1_GUI {
         tabbedPane.addTab("OP-Code", null, opcode_scrollPane, null);
 
         final JTextArea Opcode = new JTextArea();
-        Opcode.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                //Opcode.setText("");
-            }
-        });
-        //Opcode.setText("Op-Code text");
+        // Opcode.setText("Op-Code text");
         opcode_scrollPane.setViewportView(Opcode);
 
         JScrollPane Hex_scrollPane = new JScrollPane();
         tabbedPane.addTab("HEX", null, Hex_scrollPane, null);
 
         final JTextArea Hex = new JTextArea();
-        Hex.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                Hex.setText("");
-            }
-        });
-        Hex.setText("HEX code");
+        // Hex.setText("HEX code");
         Hex_scrollPane.setViewportView(Hex);
 
 
 
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+        panel.setBackground(UIManager.getColor("Button.background"));
+        panel.setBounds(996, 259, 205, 239);
+        frame.getContentPane().add(panel);
+
+        JLabel label = new JLabel("PPI");
+        label.setBounds(81, 12, 43, 15);
+        panel.add(label);
+
+        JLabel label_1 = new JLabel("Port A");
+        label_1.setBounds(32, 59, 51, 15);
+        panel.add(label_1);
+
+        JLabel label_2 = new JLabel("Port B");
+        label_2.setBounds(32, 101, 51, 15);
+        panel.add(label_2);
+
+        JLabel label_3 = new JLabel("Port C");
+        label_3.setBounds(32, 148, 51, 15);
+        panel.add(label_3);
+
+        textField = new JTextField();
+        textField.setEditable(false);
+        textField.setColumns(10);
+        textField.setBounds(101, 55, 70, 19);
+        panel.add(textField);
+
+        textField_1 = new JTextField();
+        textField_1.setEditable(false);
+        textField_1.setColumns(10);
+        textField_1.setBounds(101, 102, 70, 19);
+        panel.add(textField_1);
+
+        textField_2 = new JTextField();
+        textField_2.setEditable(false);
+        textField_2.setColumns(10);
+        textField_2.setBounds(101, 144, 70, 19);
+        panel.add(textField_2);
+
+
+        JButton button = new JButton("Update");
+        button.setBounds(42, 184, 117, 25);
+        panel.add(button);
+
+
+        Image closeimage = ImageIO.read(this.getClass().getResource("/imgs/media-playback-stop.png"));
+        Image stepimage = ImageIO.read(getClass().getResource("/imgs/media-skip-forward.png"));
+        Image executeimage = ImageIO.read(getClass().getResource("/imgs/media-playback-start.png"));
+
         JButton SingleStep = new JButton();
-        SingleStep.setBounds(447, 5, 39, 25);
+        SingleStep.setBounds(100 , 5, 30,30);
         tools_panel.add(SingleStep);
         SingleStep.setBorder(null);
         SingleStep.setToolTipText("Single Step");
-        try {
-            Image imgs = ImageIO.read(getClass().getResource("SS1.png"));
-            SingleStep.setIcon(new ImageIcon(imgs));
-        } catch  (IOException ex) {}
-
+        SingleStep.setIcon(new ImageIcon(stepimage));
 
         JButton execute = new JButton();
-        execute.setBounds(496, 5, 39, 25);
+        execute.setBounds(135 , 5, 30, 30);
         tools_panel.add(execute);
+        execute.setBackground(null);
         execute.setToolTipText("Execute");
         execute.setBorder(null);
-        try {
-            Image imgs = ImageIO.read(getClass().getResource("exec2.png"));
-            execute.setIcon(new ImageIcon(imgs));
-
-            JPanel panel = new JPanel();
-            panel.setLayout(null);
-            panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-            panel.setBackground(UIManager.getColor("Button.background"));
-            panel.setBounds(996, 259, 205, 239);
-            frame.getContentPane().add(panel);
-
-            JLabel label = new JLabel("PPI");
-            label.setBounds(81, 12, 43, 15);
-            panel.add(label);
-
-            JLabel label_1 = new JLabel("Port A");
-            label_1.setBounds(32, 59, 51, 15);
-            panel.add(label_1);
-
-            JLabel label_2 = new JLabel("Port B");
-            label_2.setBounds(32, 101, 51, 15);
-            panel.add(label_2);
-
-            JLabel label_3 = new JLabel("Port C");
-            label_3.setBounds(32, 148, 51, 15);
-            panel.add(label_3);
-
-            textField = new JTextField();
-            textField.setEditable(false);
-            textField.setColumns(10);
-            textField.setBounds(101, 55, 70, 19);
-            panel.add(textField);
-
-            textField_1 = new JTextField();
-            textField_1.setEditable(false);
-            textField_1.setColumns(10);
-            textField_1.setBounds(101, 102, 70, 19);
-            panel.add(textField_1);
-
-            textField_2 = new JTextField();
-            textField_2.setEditable(false);
-            textField_2.setColumns(10);
-            textField_2.setBounds(101, 144, 70, 19);
-            panel.add(textField_2);
-
-            JButton button = new JButton("Update");
-            button.setBounds(42, 184, 117, 25);
-            panel.add(button);
-        } catch  (IOException ex) {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        execute.setIcon(new ImageIcon(executeimage));
 
         SingleStep.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
 
-
                 try {
 
-                    if(!up.active) {
-                        memory = new Memory(65536);
-                        Connector.connect(up,memory);
-
+                    if(!up.active && !up.trap) {
                         Parser asmParser = new Parser(Opcode.getText(),false,"asm");
                         memory.load(new Register16(0x8000),asmParser.value());
-                        //memory.print(new Register16(0x8000), 10);
+                        Hex.setText(asmParser.content());
+                        ErrorMessages.setText( ErrorMessages.getText()+"Parse Successful!\n");
 
-                        String output = new String();
-                        for ( int val: asmParser.value())
-                            output += new Register8(val).hex()+" ";
-                        Hex.setText(output);
-
-                        ErrorMessages.setText( ErrorMessages.getText()+"Build Successful!\n");
-
-
-                        memory.start();
+                        // Reset the microprocessor
+                        up.trap = true;
+                        up.resetin = true;
+                    } else {
+                        up.trap = true;
+                        up.active = true;
                     }
-
-
-                    up.startonce(new Register16(0x8000),false,false);
-                    PSWH.setText( up.register[7].hex());
-                    PSWH.setHorizontalAlignment(JTextField.CENTER);
-
-                    PSWL.setText( up.flag.hex() );
-                    PSWL.setHorizontalAlignment(JTextField.CENTER);
-
-                    PC.setText( up.pc.hex());
-                    PC.setHorizontalAlignment(JTextField.CENTER);
-
-                    SP.setText( up.sp.hex());
-                    SP.setHorizontalAlignment(JTextField.CENTER);
-
-                    IR.setText( up.ir.hex());
-                    IR.setHorizontalAlignment(JTextField.CENTER);
-
-                    B.setText( up.register[0].hex());
-                    B.setHorizontalAlignment(JTextField.CENTER);
-
-                    C.setText( up.register[1].hex());
-                    C.setHorizontalAlignment(JTextField.CENTER);
-
-                    D.setText( up.register[2].hex());
-                    D.setHorizontalAlignment(JTextField.CENTER);
-
-                    E.setText( up.register[3].hex());
-                    E.setHorizontalAlignment(JTextField.CENTER);
-
-                    H.setText( up.register[4].hex());
-                    H.setHorizontalAlignment(JTextField.CENTER);
-
-                    L.setText( up.register[5].hex());
-                    L.setHorizontalAlignment(JTextField.CENTER);
-
-                    FLAG.setText( up.flag.value());
-                    FLAG.setHorizontalAlignment(JTextField.CENTER);
-
-                    up.release();
-                    // up.print(true);
 
                 } catch (IOException ee) {
                     ErrorMessages.setText(ErrorMessages.getText()+ee.getMessage()+"\n");
                 } catch (ParseException ee) {
                     ErrorMessages.setText(ErrorMessages.getText()+ee.getMessage()+"\n");
-                } catch (InterruptedException ee) {
-                    ErrorMessages.setText(ErrorMessages.getText()+ee.getMessage()+"\n");
                 }
-
-            }
-        });
-
-
-
-        close.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                up.active = false;
             }
         });
 
@@ -579,65 +518,44 @@ public class ver1_GUI {
             @Override
             public void mouseClicked(MouseEvent e) {
 
-
-
-
                 try {
-
-
-
                     if(!up.active) {
-                        memory = new Memory(65536);
-                        Connector.connect(up,memory);
-
                         Parser asmParser = new Parser(Opcode.getText(),false,"asm");
                         memory.load(new Register16(0x8000),asmParser.value());
-                        //memory.print(new Register16(0x8000), 10);
-
-                        String output = new String();
-                        for ( int val: asmParser.value())
-                            output += new Register8(val).hex()+" ";
-                        Hex.setText(output);
-
-                        ErrorMessages.setText( ErrorMessages.getText()+"Build Successful!\n");
-
-
-                        memory.start();
+                        Hex.setText(asmParser.content());
+                        ErrorMessages.setText( ErrorMessages.getText()+"Parse Successful!\n");
+                        // Reset the microprocessor
+                        up.trap = false;
+                        up.resetin = true;
+                    } else {
+                        up.active = false;
                     }
-
-                    do {
-                        up.startonce(new Register16(0x8000),false,false);
-                        PSWH.setText( up.register[7].hex());
-                        PSWL.setText( up.flag.hex() );
-
-                        PC.setText( up.pc.hex());
-                        SP.setText( up.sp.hex());
-                        IR.setText( up.ir.hex());
-
-                        B.setText( up.register[0].hex());
-                        C.setText( up.register[1].hex());
-                        D.setText( up.register[2].hex());
-
-                        E.setText( up.register[3].hex());
-                        H.setText( up.register[4].hex());
-                        L.setText( up.register[5].hex());
-
-                        FLAG.setText( up.flag.value());
-                    } while (up.active);
-                    up.release();
-                    // up.print(true);
 
                 } catch (IOException ee) {
                     ErrorMessages.setText(ErrorMessages.getText()+ee.getMessage()+"\n");
                 } catch (ParseException ee) {
                     ErrorMessages.setText(ErrorMessages.getText()+ee.getMessage()+"\n");
-                } catch (InterruptedException ee) {
-                    ErrorMessages.setText(ErrorMessages.getText()+ee.getMessage()+"\n");
                 }
-
             }
         });
 
+
+        ActionListener taskPerformer = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+
+                // Update the registers
+                updateRegisters();
+
+                // Update the buttons
+                if( up.active && !up.trap )
+                    execute.setIcon(new ImageIcon(closeimage));
+                else
+                    execute.setIcon(new ImageIcon(executeimage));
+
+            }
+        };
+        // 100 ms delay
+        new Timer(100, taskPerformer).start();
+
     }
 }
-
