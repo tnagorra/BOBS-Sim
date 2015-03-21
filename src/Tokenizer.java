@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.util.Scanner;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 class Tokenizer {
 
@@ -21,13 +23,16 @@ class Tokenizer {
         content = content.toUpperCase();
 
         // Replace commands with spaces or a 16 bit number to single representation
-        for( String[] rep : replace)
-            content = content.replaceAll(rep[0], rep[1]);
+        if(replace != null){
+            for( String[] rep : replace)
+                content = content.replaceAll(rep[0], rep[1]);
+        }
 
         // No other whitespaces are allowed
         // Tokenize it - Seperators are spaces, commas, and new lines
         // Doesn't care much about commas placement
-        tokens = content.split(splitter);
+        tokens = content.split(splitter,-1);
+        //StringSplitOptions.RemoveEmptyEntries
     }
 
     // For debugging purposes

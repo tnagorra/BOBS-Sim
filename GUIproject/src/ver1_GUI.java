@@ -490,13 +490,22 @@ public class ver1_GUI {
             @Override
             public void mouseClicked(MouseEvent e) {
 
+
+
                 try {
 
+
                     if(!up.active && !up.trap) {
-                        Parser asmParser = new Parser(Opcode.getText(),false,"asm");
-                        memory.load(new Register16(0x8000),asmParser.value());
-                        Hex.setText(asmParser.content());
-                        ErrorMessages.setText( ErrorMessages.getText()+"Parse Successful!\n");
+
+                        Seperator tok = new Seperator(Opcode.getText(),false);
+                        Hex.setText("");
+                        for( String[] file: tok.value() ) {
+                            Parser asmParser = new Parser(file[1],false,"asm");
+                            Integer address = Integer.parseInt(file[0],16);
+                            memory.load(new Register16(address),asmParser.value());
+                            Hex.setText(Hex.getText()+"@"+file[0] +"\n"+ asmParser.content()+"\n\n");
+                            ErrorMessages.setText( ErrorMessages.getText()+"@"+file[0]+" Parse Successful!\n");
+                        }
 
                         // Reset the microprocessor
                         up.trap = true;
@@ -520,10 +529,18 @@ public class ver1_GUI {
 
                 try {
                     if(!up.active) {
-                        Parser asmParser = new Parser(Opcode.getText(),false,"asm");
-                        memory.load(new Register16(0x8000),asmParser.value());
-                        Hex.setText(asmParser.content());
-                        ErrorMessages.setText( ErrorMessages.getText()+"Parse Successful!\n");
+
+
+                        Seperator tok = new Seperator(Opcode.getText(),false);
+                        Hex.setText("");
+                        for( String[] file: tok.value() ) {
+                            Parser asmParser = new Parser(file[1],false,"asm");
+                            Integer address = Integer.parseInt(file[0],16);
+                            memory.load(new Register16(address),asmParser.value());
+                            Hex.setText(Hex.getText()+"@"+file[0] +"\n"+ asmParser.content()+"\n\n");
+                            ErrorMessages.setText( ErrorMessages.getText()+"@"+file[0]+" Parse Successful!\n");
+                        }
+
                         // Reset the microprocessor
                         up.trap = false;
                         up.resetin = true;
@@ -559,3 +576,6 @@ public class ver1_GUI {
 
     }
 }
+
+
+

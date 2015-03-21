@@ -11,6 +11,10 @@ class Parser extends Tokenizer {
     public Parser(String name, boolean open, String datatype) throws IOException, ParseException {
         super(name,open,Parser.tokenReplace,Parser.tokenSplit);
         //print();
+
+        // datatype doesn't matter much, if a data file
+        // is sent as asm, it will still be okay with
+        // a little hoverhead only
         if(datatype=="asm") {
             translateOpcode();
         } else if (datatype=="data") {
