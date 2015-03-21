@@ -3,7 +3,7 @@ class Ppi extends Thread {
     Register8 baseAddress;
     Register8[] ports;
 
-    public Ppi(Register8 baseAddr){
+    public Ppi(Register8 baseAddr) {
         baseAddress = baseAddr.clone();
         ports = new Register8[4];
         for(int i = 0; i < ports.length; i++)
@@ -21,10 +21,40 @@ class Ppi extends Thread {
                 data |= ports[2].get() & 0xf0;
             else if(ports[2].get(0))
                 data |= ports[2].get() & 0x0f;
-        }
-        else
+        } else
             data = ports[index].get();
         return data;
+    }
+
+    private void  WritePort(int index , int value) {
+        if(index == 3) {
+            ports[3].set(value);
+            if(ports[3].get(7) == false) {
+                int BitPos = ports[3].get(3,1);
+                boolean  val = ports[3].get(0);
+                ports[2].set(BitPos, val);
+            }
+        } else if(index == 2) {
+            if(ports[3].get(4) == false) {
+                int data = (value & 0xf0) | (value & 0x0f);
+                ports[2].set(data);
+            }
+            if(ports[3].get(0) == false) {
+                int data = (value & 0xf0) | (value & 0x0f);
+                ports[2].set(data);
+            }
+        } else
+            ports[index].set(value);
+    }
+
+    // If any address doesn't belong to my address
+    // then I should do nothing, not even notify
+    // the processor
+    public boolean isMine(Register8 addr) {
+        int diff = addr.get() - baseAddress.get();
+        if ( diff >= ports.length  || diff < 0 )
+            return false;
+        return true;
     }
 
     public Register8 Read(Register8 position) {
@@ -35,29 +65,6 @@ class Ppi extends Thread {
         return new Register8(value);
     }
 
-    private void  WritePort(int index , int value) {
-        if(index == 3) {
-            ports[3].set(value);
-            if(ports[3].get(7) == false){
-                int BitPos = ports[3].get(3,1);
-                boolean  val = ports[3].get(0);
-                ports[2].set(BitPos, val);
-            }
-        }
-        else if(index == 2) {
-            if(ports[3].get(4) == false) {
-                int data = (value & 0xf0) | (value & 0x0f);
-                ports[2].set(data);
-            }
-            if(ports[3].get(0) == false) {
-                int data = (value & 0xf0) | (value & 0x0f);
-                ports[2].set(data);
-            }
-        }
-        else
-            ports[index].set(value);
-    }
-
     public void  Write(Register8 position, Register8 reg) {
         int index = position.get() - baseAddress.get();
         if(index >= ports.length || index < 0)
@@ -65,31 +72,36 @@ class Ppi extends Thread {
         int value = reg.get();
         WritePort(index ,value);
     }
+
+    /*
     private  void print() {
 
     }
+    */
+
     public void run() {
         try {
             synchronized(up) {
-                while(!up.active)
-                    Thread.sleep(1);
-                while(up.active) {
+                System.out.println("IO started!");
+                while( true ) {
                     up.wait();
                     if(up.iom == true) {
                         if(up.write == true) {
                             Register8 taddress = up.busL.clone();
-                            up.notify();
-                            up.wait();
-                            Register8 tdata = up.busL.clone();
-                            Write(taddress, tdata);
-                            up.notify();
-                        }
-                        else if(up.read == true) {
+                            if(isMine(taddress)) {
+                                up.notify();
+                                up.wait();
+                                Register8 tdata = up.busL.clone();
+                                Write(taddress, tdata);
+                                up.notify();
+                            }
+                        } else if(up.read == true) {
                             Register8 taddress = up.busL.clone();
-                            up.busL = Read(taddress);
-                            up.notify();
-                        }
-                        else {
+                            if(isMine(taddress)) {
+                                up.busL = Read(taddress);
+                                up.notify();
+                            }
+                        } else {
                             if(up.read && up.write) {
                                 System.out.print("This is read / write signal error.");
                             }
@@ -97,6 +109,9 @@ class Ppi extends Thread {
                     }
                 }
             }
-        } catch(InterruptedException i){}
+        } catch(InterruptedException i) {
+            System.out.println("IO released!");
+        }
     }
 }
+

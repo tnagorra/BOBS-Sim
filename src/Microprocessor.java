@@ -24,7 +24,7 @@ public class Microprocessor extends Thread {
     public Register8[] register;
     public Flag flag;
 
-    public Memory memory;
+    // public Memory memory;
 
 
     public Register16 restartLocation;

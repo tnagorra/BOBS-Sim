@@ -16,6 +16,7 @@ class Memory  extends Thread {
         }
     }
 
+    /*
     public void print( Register16 position, int total) {
         System.out.print( position.hex()+ " : ");
         for(int i=0; i < total && i+position.get() < arr.length; i++) {
@@ -23,6 +24,7 @@ class Memory  extends Thread {
         }
         System.out.print("\n");
     }
+    */
 
     private Register8 get(Register16 position) {
         if( position.get() >=arr.length || position.get() <0 )
