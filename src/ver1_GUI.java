@@ -1,1 +1,1 @@
-/home/lola/working/BOBS-Simulator/GUIproject/src/ver1_GUI.java
+../GUIproject/src/ver1_GUI.java
