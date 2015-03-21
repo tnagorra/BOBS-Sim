@@ -52,7 +52,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
 
-public class ver1_GUI {
+public class Gui {
 
     private JFrame frame;
     private JTextField Mem_Address;
@@ -92,7 +92,7 @@ public class ver1_GUI {
                 try {
                      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-                    ver1_GUI window = new ver1_GUI();
+                    Gui window = new Gui();
                     window.frame.setVisible(true);
                     window.updateRegisters();
 
@@ -122,7 +122,7 @@ public class ver1_GUI {
     /**
      * Create the application.
      */
-    public ver1_GUI() throws IOException {
+    public Gui() throws IOException {
 
         up = new Microprocessor();
         memory = new Memory(65536);

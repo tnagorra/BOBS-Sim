@@ -4,10 +4,15 @@
     <property name="build.dir" value="build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="jar.dir" value="${build.dir}/jar"/>
-    <property name="main-class" value="ver1_GUI"/>
+    <property name="main-class" value="Gui"/>
 
     <target name="clean">
-        <delete dir="${build.dir}"/>
+        <delete>
+            <fileset dir="${classes.dir}">
+                <include name="*"/>
+            </fileset>
+        </delete>
+        <delete dir="${jar.dir}"/>
     </target>
     <target name="compile">
         <mkdir dir="${classes.dir}"/>
