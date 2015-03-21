@@ -462,23 +462,22 @@ public class Gui {
         panel.add(textField_2);
 
 
-        JButton button = new JButton("Update");
-        button.setBounds(42, 184, 117, 25);
-        panel.add(button);
-
-
         Image closeimage = ImageIO.read(this.getClass().getResource("/imgs/media-playback-stop.png"));
         Image stepimage = ImageIO.read(getClass().getResource("/imgs/media-skip-forward.png"));
         Image executeimage = ImageIO.read(getClass().getResource("/imgs/media-playback-start.png"));
 
-        JButton SingleStep = new JButton();
+        final JButton button = new JButton("Update");
+        button.setBounds(42, 184, 117, 25);
+        panel.add(button);
+
+        final JButton SingleStep = new JButton();
         SingleStep.setBounds(200, 1, 30,30);
         tools_panel.add(SingleStep);
         SingleStep.setBorder(null);
         SingleStep.setToolTipText("Single Step");
         SingleStep.setIcon(new ImageIcon(stepimage));
 
-        JButton execute = new JButton();
+        final JButton execute = new JButton();
         execute.setBounds(167, 1, 30, 30);
         tools_panel.add(execute);
         execute.setBackground(null);
@@ -490,10 +489,7 @@ public class Gui {
             @Override
             public void mouseClicked(MouseEvent e) {
 
-
-
                 try {
-
 
                     if(!up.active && !up.trap) {
 
