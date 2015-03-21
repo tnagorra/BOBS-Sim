@@ -26,7 +26,6 @@ public class Microprocessor extends Thread {
 
     // public Memory memory;
 
-
     public Register16 restartLocation;
 
     // Constructor
