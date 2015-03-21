@@ -1,0 +1,23 @@
+@8000
+MVI E, 0Ah
+MOV D, E        ;L2
+LXI H 9000h
+MOV A, M
+MOV C, A        ;L3
+INX H           ;LOOP
+DCR D
+JZ 8019         ;JZ L1
+MOV A, M
+CMP C
+JNC 8007        ;JNC L3
+MOV M, C
+DCX H
+MOV M, A
+INX H
+JMP 8008        ;JMP LOOP
+DCR E           ;L1
+JNZ 8002        ;JNZ L2
+HLT
+
+@9000
+01 09 02 07 04 05 0A 00 06 01

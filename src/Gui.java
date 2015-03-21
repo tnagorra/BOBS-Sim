@@ -570,7 +570,7 @@ public class Gui {
             }
         };
         // 100 ms delay
-        new Timer(100, taskPerformer).start();
+        new Timer(30, taskPerformer).start();
 
     }
 }
