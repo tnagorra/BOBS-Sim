@@ -1,72 +1,82 @@
 class Memory  extends Thread {
 
     Microprocessor up;
+    Register8[] memories;
 
-    Register8[] arr;
+    // Get if the address belong to me or not
+    // Here we have one single memory not like IO
+    private boolean isMine(Register16 addr) {
+        int index = addr.get();
+        if ( index >= memories.length || index < 0 )
+            return false;
+        return true;
+    }
 
+    // Memory Constructor
     public Memory(int size) {
-        arr= new Register8[size];
-        for(int i=0; i<arr.length; i++)
-            arr[i] = new Register8(0);
+        memories = new Register8[size];
+        for (int i = 0; i < memories.length; i++)
+            memories[i] = new Register8(0);
     }
 
+    // Load data using integer array from outside
     public void load( Register16 position, int[] opcode ) {
-        for(int i=0; i < opcode.length && i+position.get() < arr.length; i++) {
-            arr[i+position.get()] = new Register8(opcode[i]);
+        for (int i = 0; i < opcode.length && i + position.get() < memories.length; i++) {
+            memories[i + position.get()] = new Register8(opcode[i]);
         }
     }
 
-    /*
-    public void print( Register16 position, int total) {
-        System.out.print( position.hex()+ " : ");
-        for(int i=0; i < total && i+position.get() < arr.length; i++) {
-            System.out.print(arr[i+position.get()].hex()+" ");
-        }
-        System.out.print("\n");
-    }
-    */
-
+    // Get data from memory
     private Register8 get(Register16 position) {
-        if( position.get() >=arr.length || position.get() <0 )
+        if( !isMine(position))
             throw new IndexOutOfBoundsException();
         // Shouldn't return object
-        return arr[position.get()].clone();
+        return memories[position.get()].clone();
     }
 
+    // Set data from memory
     private void set(Register16 position, Register8 reg) {
-        if( position.get() >=arr.length || position.get() <0 )
+        if( !isMine(position))
             throw new IndexOutOfBoundsException();
         // Shouldn't copy object
-        arr[position.get()].copy(reg);
+        memories[position.get()].copy(reg);
     }
 
 
     public void run() {
         try {
-            synchronized(up) {
+            synchronized (up) {
                 System.out.println("Memory started!");
-                while( true  ) {
+                while (true ) {
                     // Wait for some signal
                     up.wait();
-                    if( up.iom == false) {
-                        if ( up.write == true ) {
-                            Register16 taddress = new Register16(up.busL, up.busH);
-                            up.notify();
-                            up.wait();
-                            Register8 tdata = up.busL.clone();
-                            set(taddress,tdata);
-                            up.notify();
-                        } else if ( up.read == true ) {
-                            Register16 taddress = new Register16(up.busL, up.busH);
-                            up.busL = get(taddress);
-                            up.notify();
-                        } else {
-                            if( up.read && up.write) {
-                                System.out.print("This is read/write signal error. ");
-                            }
-                            // if both of them are false then this may occur
-                            // when up.wait() was forced to stop
-                        }
+                    if ( !(up.iom == false) )
+                        continue;
+
+                    if ( up.write ) {
+                        Register16 taddress = new Register16(up.busL, up.busH);
+                        // Shouldn't notify if address doesn't belong
+                        // to the io device
+                        if (!isMine(taddress))
+                            continue;
+                        up.notify();
+                        up.wait();
+                        Register8 tdata = up.busL.clone();
+                        set(taddress, tdata);
+                        up.notify();
+                    } else if ( up.read ) {
+                        Register16 taddress = new Register16(up.busL, up.busH);
+                        // Shouldn't notify if address doesn't belong
+                        // to the io device
+                        if (!isMine(taddress))
+                            continue;
+                        up.busL = get(taddress);
+                        up.notify();
+                    } else {
+                        if ( up.read && up.write)
+                            System.out.print("R/W signal error. ");
+                        // if both of them are false then this may occur
+                        // when forced to stop
                     }
                 }
             }
@@ -74,5 +84,20 @@ class Memory  extends Thread {
             System.out.println("Memory released!");
         }
     }
+
+
+    public void print( Register16 position, int total) {
+        System.out.print( position.hex() + " : ");
+        for (int i = 0; i < total && i + position.get() < memories.length; i++) {
+            System.out.print(memories[i + position.get()].hex() + " ");
+        }
+        System.out.print("\n");
+    }
+
 }
+
+
+
+
+
 

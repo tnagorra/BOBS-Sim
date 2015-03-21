@@ -5,7 +5,7 @@ class Connector {
         mem.up = upro;
     }
 
-    static public void connect(Microporcessor upro, Ppi pp){
+    static public void connect(Microprocessor upro, Ppi pp){
         pp.up = upro;
     }
 }
