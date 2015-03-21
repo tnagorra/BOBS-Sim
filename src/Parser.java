@@ -69,12 +69,13 @@ class Parser extends Tokenizer {
     private static String tokenSplit = "( *, *)|(( *\n+ *)+)|( +)";
 
     private static String[][] tokenReplace = {
+
         // UnTokenize everything between ";" and "\n"
         {";.*\n", "\n"},
         // Tokenize a 16 bit number to two 8 bit pair
-        {"[ +,]([0-9A-F][0-9A-F])([(0-9A-F][0-9A-F])[H]? *", " $2 $1\n"},
+        {"[ +,]([0-9A-F][0-9A-F])([(0-9A-F][0-9A-F])[H]? *", " $2 $1 "},
         // Tokenize a 8 bit number
-        {"[ +,]([0-9A-F][0-9A-F])[H]? *\n", " $1\n"},
+        {"[ +,]([0-9A-F][0-9A-F])[H]? *", " $1 "},
 
         // Tokenize other commands
         {"MOV *([ABCDEHLM]) *, *([ABCDEHLM])", "MOV-$1$2 "},
@@ -98,6 +99,10 @@ class Parser extends Tokenizer {
         {"PUSH *([BDH]|PSW) *", "PUSH-$1 "},
         {"POP *([BDH]|PSW) *", "POP-$1 "},
         {"RST *([0-7]) *", "RST-$1 "},
+
+        // Remove trailing spaces
+        {"[ *\n *]*$",""},
+        {"^[ *\n *]*",""},
     };
 
     private static final Map<String , String> tokenOpcode;

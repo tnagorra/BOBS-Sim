@@ -26,8 +26,13 @@ public class Microprocessor extends Thread {
 
     public Memory memory;
 
+
+    public Register16 restartLocation;
+
     // Constructor
     public Microprocessor() {
+        restartLocation = new Register16(0x0000);
+
         // Initialize Memory Address Register
         mar = new Register16(0x0000);
         // Initialize Memory Buffer Register
@@ -68,12 +73,12 @@ public class Microprocessor extends Thread {
                 Thread.sleep(50);
 
                 if( resetin)
-                    resetHandler(new Register16(0x8000));
+                    resetHandler();
 
                 while (active) {
 
                     // Initiates the microprocessor / restarts it
-                    resetHandler(new Register16(0x8000));
+                    resetHandler();
 
                     // For single stepping
                     // singlestep = interactHandler(verbose,singlestep);
@@ -128,7 +133,7 @@ public class Microprocessor extends Thread {
     }
     */
 
-    private void resetHandler(Register16 jmpto) throws InterruptedException {
+    private void resetHandler() throws InterruptedException {
         if (resetin) {
 
             Thread.sleep(10);
@@ -141,7 +146,7 @@ public class Microprocessor extends Thread {
             //hlda = false;
             Thread.sleep(10);
 
-            pc.copy(jmpto);
+            pc.copy(restartLocation);
         }
     }
 

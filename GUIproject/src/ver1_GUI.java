@@ -90,7 +90,7 @@ public class ver1_GUI {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
                     ver1_GUI window = new ver1_GUI();
                     window.frame.setVisible(true);
@@ -472,14 +472,14 @@ public class ver1_GUI {
         Image executeimage = ImageIO.read(getClass().getResource("/imgs/media-playback-start.png"));
 
         JButton SingleStep = new JButton();
-        SingleStep.setBounds(100 , 5, 30,30);
+        SingleStep.setBounds(200, 1, 30,30);
         tools_panel.add(SingleStep);
         SingleStep.setBorder(null);
         SingleStep.setToolTipText("Single Step");
         SingleStep.setIcon(new ImageIcon(stepimage));
 
         JButton execute = new JButton();
-        execute.setBounds(135 , 5, 30, 30);
+        execute.setBounds(167, 1, 30, 30);
         tools_panel.add(execute);
         execute.setBackground(null);
         execute.setToolTipText("Execute");
@@ -497,7 +497,9 @@ public class ver1_GUI {
 
                     if(!up.active && !up.trap) {
 
-                        Seperator tok = new Seperator(Opcode.getText(),false);
+                        up.restartLocation = new Register16(0x8000);
+
+                        Seperator tok = new Seperator(Opcode.getText(),false,up.restartLocation.hex());
                         Hex.setText("");
                         for( String[] file: tok.value() ) {
                             Parser asmParser = new Parser(file[1],false,"asm");
@@ -506,7 +508,6 @@ public class ver1_GUI {
                             Hex.setText(Hex.getText()+"@"+file[0] +"\n"+ asmParser.content()+"\n\n");
                             ErrorMessages.setText( ErrorMessages.getText()+"@"+file[0]+" Parse Successful!\n");
                         }
-
                         // Reset the microprocessor
                         up.trap = true;
                         up.resetin = true;
@@ -530,8 +531,9 @@ public class ver1_GUI {
                 try {
                     if(!up.active) {
 
+                        up.restartLocation = new Register16(0x8000);
 
-                        Seperator tok = new Seperator(Opcode.getText(),false);
+                        Seperator tok = new Seperator(Opcode.getText(),false,up.restartLocation.hex());
                         Hex.setText("");
                         for( String[] file: tok.value() ) {
                             Parser asmParser = new Parser(file[1],false,"asm");
