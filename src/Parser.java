@@ -20,7 +20,7 @@ class Parser extends Tokenizer {
         } else if (datatype=="data") {
             // something here
         } else {
-            throw new ParseException("Invalid datatype");
+            throw new ParseException("Invalid datatype.");
         }
         checkByteCode();
         assignValue();
@@ -53,7 +53,7 @@ class Parser extends Tokenizer {
         for(int i=0;i<tokens.length;i++){
             // If they 8bit numbers then throw an error
             if ( !tokens[i].matches("[0-9A-F][0-9A-F]") )
-                throw new ParseException("Invalid token: " + tokens[i]);
+                throw new ParseException("Invalid token " + tokens[i]);
         }
     }
 

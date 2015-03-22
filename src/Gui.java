@@ -1,5 +1,8 @@
-import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Image;
+import javax.swing.BorderFactory;
+
+import java.awt.EventQueue;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -81,9 +84,9 @@ public class Gui {
     private JTextField PortATxt_1;
     private JTextField PortBTxt_1;
     private JTextField PortCTxt_1;
-    private JTextField PortATxt_2;
-    private JTextField PortBTxt_2;
-    private JTextField PortCTxt_2;
+    private JTextField ppiTextA2;
+    private JTextField ppiTextB2;
+    private JTextField ppiTextC2;
 
     private JTable table;
 
@@ -151,8 +154,18 @@ public class Gui {
      */
     private void initialize() throws IOException {
 
-        // main frame
+        // Load Fonts
+        final Font monospace = new Font("Ubuntu Mono", Font.BOLD,18);
+        final Font serif = new Font("Courier", Font.PLAIN,12);
 
+        /*
+        // Load images
+        final Image closeimage = ImageIO.read(this.getClass().getResource("imgs/stop1.png"));
+        final Image stepimage = ImageIO.read(getClass().getResource("imgs/SS1.png"));
+        final Image executeimage = ImageIO.read(getClass().getResource("imgs/exec2.png"));
+        */
+
+        // Initialize main frame
         frame = new JFrame();
         frame.setBackground(UIManager.getColor("Button.background"));
         frame.setBounds(0, 0, 1100-118, 700);
@@ -160,79 +173,83 @@ public class Gui {
         frame.getContentPane().setLayout(null);
         frame.setResizable(false);
 
-        final JPanel tools_panel = new JPanel();
-        tools_panel.setBounds(0, 0, 1100-118, 33);
-        tools_panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-        tools_panel.setLayout(null);
-        frame.getContentPane().add(tools_panel);
+
+        // Error Message Pane
+
+        final JScrollPane messageScrollPane = new JScrollPane();
+        messageScrollPane.setBounds(218, 498, 600, 168);
+        frame.getContentPane().add(messageScrollPane);
+
+        final JTextArea errorMessage = new JTextArea();
+        errorMessage.setEditable(false);
+        errorMessage.setFont(serif);
+        errorMessage.setBorder(BorderFactory.createEmptyBorder(10,10,15,10));
+        messageScrollPane.setViewportView(errorMessage);
 
 
-        final JScrollPane Message_scrollPane = new JScrollPane();
-        Message_scrollPane.setBounds(218, 498, 600, 168);
-        // Message_scrollPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-        frame.getContentPane().add(Message_scrollPane);
-        final JTextArea ErrorMessages = new JTextArea();
-        // ErrorMessages.setText("Error Pane!\n");
-        ErrorMessages.setEditable(false);
-        Message_scrollPane.setViewportView(ErrorMessages);
-
-
+        // Opcode And Hex Pane
         final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
         tabbedPane.setBounds(218, 32, 600, 466);
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         frame.getContentPane().add(tabbedPane);
 
-        final JScrollPane opcode_scrollPane = new JScrollPane();
-        tabbedPane.addTab("Mnemonics", null, opcode_scrollPane, null);
-        final JTextArea Opcode = new JTextArea();
-        opcode_scrollPane.setViewportView(Opcode);
+        final JScrollPane opcodeScrollPane = new JScrollPane();
+        tabbedPane.addTab("Mnemonics", null, opcodeScrollPane, null);
 
-        final JScrollPane Hex_scrollPane = new JScrollPane();
-        tabbedPane.addTab("Opcode", null, Hex_scrollPane, null);
+        final JTextArea Opcode = new JTextArea();
+        Opcode.setFont(monospace);
+        Opcode.setBorder(BorderFactory.createEmptyBorder(10,10,15,10));
+        opcodeScrollPane.setViewportView(Opcode);
+
+        final JScrollPane hexScrollPane = new JScrollPane();
+        tabbedPane.addTab("Opcode", null, hexScrollPane, null);
+
         final JTextArea Hex = new JTextArea();
-        Hex_scrollPane.setViewportView(Hex);
+        hexScrollPane.setViewportView(Hex);
+        Hex.setFont(monospace);
+        Hex.setBorder(BorderFactory.createEmptyBorder(10,10,15,10));
+
 
         // Registers
 
-        JPanel RegisterPanel = new JPanel();
-        RegisterPanel.setToolTipText("Current register status");
-        RegisterPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-        RegisterPanel.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.setBounds(10, 32, 204, 191);
-        frame.getContentPane().add(RegisterPanel);
-        RegisterPanel.setLayout(null);
+        final JPanel registerPanel = new JPanel();
+        registerPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+        registerPanel.setBackground(UIManager.getColor("Button.background"));
+        registerPanel.setBounds(8, 34, 204, 191);
+        frame.getContentPane().add(registerPanel);
+        registerPanel.setLayout(null);
 
         JLabel label = new JLabel("REGISTERS");
         label.setBounds(63, 0, 90, 29);
-        RegisterPanel.add(label);
+        registerPanel.add(label);
 
-        JLabel label_1 = new JLabel("PSW");
-        label_1.setBounds(43, 41, 38, 20);
-        RegisterPanel.add(label_1);
+        JLabel labelPsw = new JLabel("PSW");
+        labelPsw.setBounds(43, 41, 38, 20);
+        registerPanel.add(labelPsw);
 
-        JLabel label_2 = new JLabel("BC");
-        label_2.setBounds(43, 62, 38, 20);
-        RegisterPanel.add(label_2);
+        JLabel labelBc = new JLabel("BC");
+        labelBc.setBounds(43, 62, 38, 20);
+        registerPanel.add(labelBc);
 
-        JLabel label_3 = new JLabel("DE");
-        label_3.setBounds(43, 82, 38, 20);
-        RegisterPanel.add(label_3);
+        JLabel labelDe = new JLabel("DE");
+        labelDe.setBounds(43, 82, 38, 20);
+        registerPanel.add(labelDe);
 
-        JLabel label_4 = new JLabel("HL");
-        label_4.setBounds(43, 104, 38, 20);
-        RegisterPanel.add(label_4);
+        JLabel labelHl = new JLabel("HL");
+        labelHl.setBounds(43, 104, 38, 20);
+        registerPanel.add(labelHl);
 
-        JLabel label_5 = new JLabel("SP");
-        label_5.setBounds(43, 123, 38, 20);
-        RegisterPanel.add(label_5);
+        JLabel labelSp = new JLabel("SP");
+        labelSp.setBounds(43, 123, 38, 20);
+        registerPanel.add(labelSp);
 
-        JLabel label_6 = new JLabel("IR");
-        label_6.setBounds(43, 164, 38, 20);
-        RegisterPanel.add(label_6);
+        JLabel labelIr = new JLabel("IR");
+        labelIr.setBounds(43, 164, 38, 20);
+        registerPanel.add(labelIr);
 
-        JLabel label_7 = new JLabel("PC");
-        label_7.setBounds(43, 143, 38, 20);
-        RegisterPanel.add(label_7);
+        JLabel labelPc = new JLabel("PC");
+        labelPc.setBounds(43, 143, 38, 20);
+        registerPanel.add(labelPc);
 
         PC = new JTextField();
         PC.setBounds(99, 42, 29, 19);
@@ -242,7 +259,7 @@ public class Gui {
         PC.setColumns(10);
         PC.setBorder(null);
         PC.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(PC);
+        registerPanel.add(PC);
 
         SP = new JTextField();
         SP.setBounds(140, 42, 29, 19);
@@ -252,7 +269,7 @@ public class Gui {
         SP.setColumns(10);
         SP.setBorder(null);
         SP.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(SP);
+        registerPanel.add(SP);
 
         IR = new JTextField();
         IR.setBounds(99, 63, 29, 19);
@@ -262,7 +279,7 @@ public class Gui {
         IR.setColumns(10);
         IR.setBorder(null);
         IR.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(IR);
+        registerPanel.add(IR);
 
         B = new JTextField();
         B.setBounds(140, 63, 29, 19);
@@ -272,7 +289,7 @@ public class Gui {
         B.setColumns(10);
         B.setBorder(null);
         B.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(B);
+        registerPanel.add(B);
 
         C = new JTextField();
         C.setBounds(99, 83, 29, 19);
@@ -282,7 +299,7 @@ public class Gui {
         C.setColumns(10);
         C.setBorder(null);
         C.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(C);
+        registerPanel.add(C);
 
         D = new JTextField();
         D.setBounds(140, 83, 28, 19);
@@ -292,7 +309,7 @@ public class Gui {
         D.setColumns(10);
         D.setBorder(null);
         D.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(D);
+        registerPanel.add(D);
 
         E = new JTextField();
         E.setBounds(99, 105, 29, 19);
@@ -302,7 +319,7 @@ public class Gui {
         E.setColumns(10);
         E.setBorder(null);
         E.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(E);
+        registerPanel.add(E);
 
         H = new JTextField();
         H.setBounds(140, 105, 29, 19);
@@ -312,7 +329,7 @@ public class Gui {
         H.setColumns(10);
         H.setBorder(null);
         H.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(H);
+        registerPanel.add(H);
 
         L = new JTextField();
         L.setBounds(99, 124, 70, 19);
@@ -322,7 +339,7 @@ public class Gui {
         L.setColumns(10);
         L.setBorder(null);
         L.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(L);
+        registerPanel.add(L);
 
         PSWH = new JTextField();
         PSWH.setBounds(120, 165, 29, 19);
@@ -332,7 +349,7 @@ public class Gui {
         PSWH.setColumns(10);
         PSWH.setBorder(null);
         PSWH.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(PSWH);
+        registerPanel.add(PSWH);
 
         PSWL = new JTextField();
         PSWL.setBounds(99, 144, 70, 19);
@@ -342,7 +359,7 @@ public class Gui {
         PSWL.setColumns(10);
         PSWL.setBorder(null);
         PSWL.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(PSWL);
+        registerPanel.add(PSWL);
 
         FLAG = new JTextField();
         FLAG.setBounds(44, 22, 124, 19);
@@ -352,218 +369,196 @@ public class Gui {
         FLAG.setColumns(10);
         FLAG.setBorder(new EmptyBorder(0, 0, 0, 0));
         FLAG.setBackground(UIManager.getColor("Button.background"));
-        RegisterPanel.add(FLAG);
+        registerPanel.add(FLAG);
 
-        // PPI 1
-
-        JPanel Ppi1Panel = new JPanel();
-        Ppi1Panel.setLayout(null);
-        Ppi1Panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-        Ppi1Panel.setBackground(UIManager.getColor("Button.background"));
-        Ppi1Panel.setBounds(9, 224, 205, 179);
-        frame.getContentPane().add(Ppi1Panel);
-
-        JLabel Ppilbl_1 = new JLabel("PPI");
-        Ppilbl_1.setBounds(78, 4, 43, 15);
-        Ppi1Panel.add(Ppilbl_1);
-
-        JLabel PortAlbl_1 = new JLabel("Port A");
-        PortAlbl_1.setBounds(32, 31, 51, 15);
-        Ppi1Panel.add(PortAlbl_1);
-
-        JLabel PortBlbl_1 = new JLabel("Port B");
-        PortBlbl_1.setBounds(32, 73, 51, 15);
-        Ppi1Panel.add(PortBlbl_1);
-
-        JLabel PortClbl_1 = new JLabel("Port C");
-        PortClbl_1.setBounds(32, 120, 51, 15);
-        Ppi1Panel.add(PortClbl_1);
-
-        PortATxt_1 = new JTextField();
-        PortATxt_1.setEditable(false);
-        PortATxt_1.setColumns(10);
-        PortATxt_1.setBounds(101, 27, 70, 19);
-        Ppi1Panel.add(PortATxt_1);
-
-        PortBTxt_1 = new JTextField();
-        PortBTxt_1.setEditable(false);
-        PortBTxt_1.setColumns(10);
-        PortBTxt_1.setBounds(101, 74, 70, 19);
-        Ppi1Panel.add(PortBTxt_1);
-
-        PortCTxt_1 = new JTextField();
-        PortCTxt_1.setEditable(false);
-        PortCTxt_1.setColumns(10);
-        PortCTxt_1.setBounds(101, 116, 70, 19);
-        Ppi1Panel.add(PortCTxt_1);
-
-        final JButton Updatebtn_1 = new JButton("Update");
-        Updatebtn_1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-            }
-        });
-        Updatebtn_1.setBounds(42, 147, 117, 25);
-        Ppi1Panel.add(Updatebtn_1);
 
         // PPI 2
+        final JPanel ppiPanel1 = new JPanel();
+        ppiPanel1.setLayout(null);
+        ppiPanel1.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+        ppiPanel1.setBackground(UIManager.getColor("Button.background"));
+        ppiPanel1.setBounds(8, 405, 205, 120);
+        frame.getContentPane().add(ppiPanel1);
 
-        JPanel Ppi2_panel = new JPanel();
-        Ppi2_panel.setLayout(null);
-        Ppi2_panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-        Ppi2_panel.setBackground(UIManager.getColor("Button.background"));
-        Ppi2_panel.setBounds(9, 403, 205, 179);
-        frame.getContentPane().add(Ppi2_panel);
+        final JLabel ppiLabel2 = new JLabel("PPI @40");
+        ppiLabel2.setBounds(78, 4, 80, 15);
+        ppiPanel1.add(ppiLabel2);
 
-        JLabel Ppilbl_2 = new JLabel("PPI");
-        Ppilbl_2.setBounds(78, 4, 43, 15);
-        Ppi2_panel.add(Ppilbl_2);
+        final JLabel ppiLabelA2 = new JLabel("Port A");
+        ppiLabelA2.setBounds(20, 30, 50, 15);
+        ppiPanel1.add(ppiLabelA2);
 
-        JLabel PortAlbl_2 = new JLabel("Port A");
-        PortAlbl_2.setBounds(32, 31, 51, 15);
-        Ppi2_panel.add(PortAlbl_2);
+        final JLabel ppiLabelB2 = new JLabel("Port B");
+        ppiLabelB2.setBounds(20, 60, 50, 15);
+        ppiPanel1.add(ppiLabelB2);
 
-        JLabel PortBlbl_2 = new JLabel("Port B");
-        PortBlbl_2.setBounds(32, 73, 51, 15);
-        Ppi2_panel.add(PortBlbl_2);
+        final JLabel ppiLabelC2 = new JLabel("Port C");
+        ppiLabelC2.setBounds(20, 90, 50, 15);
+        ppiPanel1.add(ppiLabelC2);
 
-        JLabel PortClbl_2 = new JLabel("Port C");
-        PortClbl_2.setBounds(32, 120, 51, 15);
-        Ppi2_panel.add(PortClbl_2);
+        ppiTextA2 = new JTextField();
+        ppiTextA2.setEditable(false);
+        ppiTextA2.setColumns(10);
+        ppiTextA2.setBounds(80, 30, 30, 19);
+        ppiTextA2.setText("00");
+        ppiTextA2.setHorizontalAlignment(SwingConstants.CENTER);
+        ppiPanel1.add(ppiTextA2);
 
-        PortATxt_2 = new JTextField();
-        PortATxt_2.setEditable(false);
-        PortATxt_2.setColumns(10);
-        PortATxt_2.setBounds(101, 27, 70, 19);
-        Ppi2_panel.add(PortATxt_2);
+        ppiTextB2 = new JTextField();
+        ppiTextB2.setEditable(false);
+        ppiTextB2.setColumns(10);
+        ppiTextB2.setBounds(80, 60, 30, 19);
+        ppiTextB2.setText("00");
+        ppiTextB2.setHorizontalAlignment(SwingConstants.CENTER);
+        ppiPanel1.add(ppiTextB2);
 
-        PortBTxt_2 = new JTextField();
-        PortBTxt_2.setEditable(false);
-        PortBTxt_2.setColumns(10);
-        PortBTxt_2.setBounds(101, 74, 70, 19);
-        Ppi2_panel.add(PortBTxt_2);
+        ppiTextC2 = new JTextField();
+        ppiTextC2.setEditable(false);
+        ppiTextC2.setColumns(10);
+        ppiTextC2.setBounds(80, 90, 30, 19);
+        ppiTextC2.setText("00");
+        ppiTextC2.setHorizontalAlignment(SwingConstants.CENTER);
+        ppiPanel1.add(ppiTextC2);
 
-        PortCTxt_2 = new JTextField();
-        PortCTxt_2.setEditable(false);
-        PortCTxt_2.setColumns(10);
-        PortCTxt_2.setBounds(101, 116, 70, 19);
-        Ppi2_panel.add(PortCTxt_2);
+        final JButton ppiBtnA2 = new JButton("Stb");
+        ppiBtnA2.setBounds(125, 30, 60, 19);
+        ppiPanel1.add(ppiBtnA2);
 
-        final JButton Updatebtn_2 = new JButton("Update");
-        Updatebtn_2.setBounds(42, 147, 117, 25);
-        Ppi2_panel.add(Updatebtn_2);
+        final JButton ppiBtnB2 = new JButton("Stb");
+        ppiBtnB2.setBounds(125, 60, 60, 19);
+        ppiPanel1.add(ppiBtnB2);
 
-        final JScrollPane MessageScrollPane = new JScrollPane();
-        MessageScrollPane.setBounds(943-118, 62, 150, 605);
-        frame.getContentPane().add(MessageScrollPane);
+        final JButton ppiBtnC2 = new JButton("Stb");
+        ppiBtnC2.setBounds(125, 90, 60, 19);
+        ppiPanel1.add(ppiBtnC2);
+
+
+        ppiBtnA2.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("A");
+            }
+        });
+
+        ppiBtnB2.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("B");
+            }
+        });
+
+        ppiBtnC2.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("C");
+            }
+        });
 
 
         //Memory table
+
+        final JScrollPane memoryScrollPane = new JScrollPane();
+        memoryScrollPane.setBounds(943-118, 62, 150, 605);
+        frame.getContentPane().add(memoryScrollPane);
+
+        final JLabel memoryLabel = new JLabel("MEMORY");
+        memoryLabel.setBounds(985-118, 36, 70, 15);
+        frame.getContentPane().add(memoryLabel);
+
         Vector<String> colHdrs = new Vector<String>(2);
         colHdrs.addElement(new String("Address"));
         colHdrs.addElement(new String("Value"));
-        int RowNbr = 65536;
 
-        DefaultTableModel model = new DefaultTableModel(RowNbr, colHdrs.size());
+        int rows = 65536;
+        DefaultTableModel model = new DefaultTableModel(rows, colHdrs.size());
         model.setColumnIdentifiers(colHdrs);
-        for(int i=0; i<RowNbr; i++)
+        for(int i=0; i<rows; i++)
             model.setValueAt(new Register16(i).hex() ,i ,0);
 
         table = new JTable(model);
         table.setBounds(5, 5, 245, 620);
-        MessageScrollPane.setViewportView(table);
-
-        JLabel Memorylbl = new JLabel("MEMORY");
-        Memorylbl.setBounds(985-118, 36, 70, 15);
-        frame.getContentPane().add(Memorylbl);
-
-
-        // Interrupt Panel
-        /*
-        JPanel InterruptPanel = new JPanel();
-        InterruptPanel.setBounds(12, 583, 202, 89);
-        frame.getContentPane().add(InterruptPanel);
-        InterruptPanel.setLayout(null);
-        */
+        memoryScrollPane.setViewportView(table);
 
         // Buttons
 
-        // final Image closeimage = ImageIO.read(this.getClass().getResource("imgs/stop1.png"));
-        // final Image stepimage = ImageIO.read(getClass().getResource("imgs/SS1.png"));
-        // final Image executeimage = ImageIO.read(getClass().getResource("imgs/exec2.png"));
+        final JPanel toolsPanel = new JPanel();
+        toolsPanel.setBounds(0, 0, 1100-118, 33);
+        toolsPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+        toolsPanel.setLayout(null);
+        frame.getContentPane().add(toolsPanel);
 
         final JButton execute = new JButton("Execute");
         execute.setBounds(10, 3, 90, 24);
-        // execute.setToolTipText("Execute");
         // execute.setBorder(null);
+        // execute.setToolTipText("Execute");
         // execute.setIcon(new ImageIcon(executeimage));
-        tools_panel.add(execute);
+        toolsPanel.add(execute);
 
-        final JButton SingleStep = new JButton("Step");
-        SingleStep.setBounds(100, 3, 70, 24);
-        // SingleStep.setBorder(null);
-        // SingleStep.setToolTipText("Single Step");
-        // SingleStep.setIcon(new ImageIcon(stepimage));
-        tools_panel.add(SingleStep);
+        final JButton singleStep = new JButton("Step");
+        singleStep.setBounds(100, 3, 70, 24);
+        toolsPanel.add(singleStep);
 
 
         final JButton RST75 = new JButton("7.5");
         RST75.setBounds(190, 3, 70, 24);
-        tools_panel.add(RST75);
+        toolsPanel.add(RST75);
 
         final JButton RST65 = new JButton("6.5");
         RST65.setBounds(260, 3, 70, 24);
-        tools_panel.add(RST65);
+        toolsPanel.add(RST65);
 
         final JButton RST55 = new JButton("5.5");
         RST55.setBounds(330, 3, 70, 24);
-        tools_panel.add(RST55);
+        toolsPanel.add(RST55);
 
         final JButton INTR = new JButton("INTR");
         INTR.setBounds(400, 3, 70, 24);
-        tools_panel.add(INTR);
+        toolsPanel.add(INTR);
 
-        final JButton Trapbtn = new JButton("TRAP");
-        Trapbtn.setBounds(470, 3, 70, 24);
-        tools_panel.add(Trapbtn);
+        final JButton trapBtn = new JButton("TRAP");
+        trapBtn.setBounds(470, 3, 70, 24);
+        toolsPanel.add(trapBtn);
 
 
-        Trapbtn.addMouseListener(new MouseAdapter() {
+        trapBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 up.trap = true;
-                ErrorMessages.setText( ErrorMessages.getText() + "Trap on.\n");
+                errorMessage.setText("Status: Trap sent.\n" + errorMessage.getText() );
             }
         });
+
         RST75.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 up.r7 = true;
-                ErrorMessages.setText( ErrorMessages.getText() + "Rst 7.5 on.\n");
+                errorMessage.setText("Status: Rst 7.5 sent.\n" + errorMessage.getText() );
             }
         });
         RST65.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 up.r6 = true;
-                ErrorMessages.setText( ErrorMessages.getText() + "Rst 6.5 on.\n");
+                errorMessage.setText("Status: Rst 6.5 sent.\n" + errorMessage.getText());
             }
         });
         RST55.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 up.r5 = true;
-                ErrorMessages.setText( ErrorMessages.getText() + "Rst 5.5 on.\n");
+                errorMessage.setText( "Status: Rst 5.5 sent.\n" + errorMessage.getText() );
             }
         });
         INTR.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 up.intr = true;
-                ErrorMessages.setText( ErrorMessages.getText() + " Couldn't find Programmable Interrupt Controller!\n");
+                errorMessage.setText( "Status: Intr sent.\n" + errorMessage.getText());
+                errorMessage.setText( "Error: Programmable Interrupt Controller not found.\n" + errorMessage.getText() );
             }
         });
 
-        SingleStep.addMouseListener(new MouseAdapter() {
+        singleStep.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
 
@@ -580,7 +575,7 @@ public class Gui {
                             Integer address = Integer.parseInt(file[0], 16);
                             memory.load(new Register16(address), asmParser.value());
                             Hex.setText(Hex.getText() + "@" + file[0] + "\n" + asmParser.content() + "\n\n");
-                            ErrorMessages.setText( ErrorMessages.getText() + "@" + file[0] + " Parse Successful!\n");
+                            errorMessage.setText( "Message: Parsing completed @" + file[0] + ".\n" + errorMessage.getText());
                         }
                         // Reset the microprocessor
                         up.trap = true;
@@ -591,9 +586,9 @@ public class Gui {
                     }
 
                 } catch (IOException ee) {
-                    ErrorMessages.setText(ErrorMessages.getText() + ee.getMessage() + "\n");
+                    errorMessage.setText("Error: "+ee.getMessage() + "\n" + errorMessage.getText() );
                 } catch (ParseException ee) {
-                    ErrorMessages.setText(ErrorMessages.getText() + ee.getMessage() + "\n");
+                    errorMessage.setText("Error: "+ee.getMessage() + "\n" + errorMessage.getText() );
                 }
             }
         });
@@ -614,7 +609,7 @@ public class Gui {
                             Integer address = Integer.parseInt(file[0], 16);
                             memory.load(new Register16(address), asmParser.value());
                             Hex.setText(Hex.getText() + "@" + file[0] + "\n" + asmParser.content() + "\n\n");
-                            ErrorMessages.setText( ErrorMessages.getText() + "@" + file[0] + " Parse Successful!\n");
+                            errorMessage.setText( "Message: Parsing completed @" + file[0] + ".\n" + errorMessage.getText());
                         }
 
                         // Reset the microprocessor
@@ -625,9 +620,9 @@ public class Gui {
                     }
 
                 } catch (IOException ee) {
-                    ErrorMessages.setText(ErrorMessages.getText() + ee.getMessage() + "\n");
+                    errorMessage.setText("Error: "+ee.getMessage() + "\n" + errorMessage.getText() );
                 } catch (ParseException ee) {
-                    ErrorMessages.setText(ErrorMessages.getText() + ee.getMessage() + "\n");
+                    errorMessage.setText("Error: "+ee.getMessage() + "\n" + errorMessage.getText() );
                 }
             }
         });
@@ -642,15 +637,15 @@ public class Gui {
                 // Update the buttons
                 if ( up.active && !up.trap ) {
                     execute.setText("Stop");
-                   // execute.setIcon(new ImageIcon(closeimage));
+                    // execute.setIcon(new ImageIcon(closeimage));
                 } else {
                     execute.setText("Execute");
-                   // execute.setIcon(new ImageIcon(executeimage));
+                    // execute.setIcon(new ImageIcon(executeimage));
                 }
 
                 // Update memory
 
-                for(int i=0; i<RowNbr; i++) {
+                for(int i=0; i<rows; i++) {
                     Register16 address = new Register16(i);
                     model.setValueAt( memory.get(address).hex() ,i ,1);
                 }
@@ -663,3 +658,4 @@ public class Gui {
 
     }
 }
+
