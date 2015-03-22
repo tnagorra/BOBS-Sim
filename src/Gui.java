@@ -92,6 +92,7 @@ public class Gui {
 
     Microprocessor up;
     Memory memory;
+    Ppi ppi;
 
     /**
      * Launch the application.
@@ -141,9 +142,18 @@ public class Gui {
 
         up = new Microprocessor();
         memory = new Memory(65536);
+	ppi = new Ppi(new Register8(0x80));
         // Connecting Memory
         memory.up = up;
+        // Connecting Ppi
+	ppi.up = up;
+
         memory.start();
+	ppi.start();
+
+	ppi.set(new Register8(0x83),new Register8(0x90));
+	ppi.set(new Register8(0x80),new Register8(0xFF));
+
         up.start();
 
         initialize();
@@ -469,8 +479,8 @@ public class Gui {
         colHdrs.addElement(new String("Address"));
         colHdrs.addElement(new String("Value"));
 
-        int rows = 65536;
-        DefaultTableModel model = new DefaultTableModel(rows, colHdrs.size());
+        final int rows = 65536;
+        final DefaultTableModel model = new DefaultTableModel(rows, colHdrs.size());
         model.setColumnIdentifiers(colHdrs);
         for(int i=0; i<rows; i++)
             model.setValueAt(new Register16(i).hex() ,i ,0);
@@ -658,4 +668,3 @@ public class Gui {
 
     }
 }
-
