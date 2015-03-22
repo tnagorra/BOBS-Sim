@@ -49,8 +49,10 @@ class Memory  extends Thread {
                 while (true ) {
                     // Wait for some signal
                     up.wait();
+                    System.out.println("M Waiting complete!");
                     if ( !(up.iom == false) )
                         continue;
+                    System.out.println("M Favorable condition!");
 
                     if ( up.write ) {
                         Register16 taddress = new Register16(up.busL, up.busH);

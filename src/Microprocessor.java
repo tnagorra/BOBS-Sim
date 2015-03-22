@@ -165,10 +165,10 @@ public class Microprocessor extends Thread {
                     intr = false;
                     inta = true;
                     Register8 h,l;
-                    notify();
+                    notifyAll();
                     wait();
                     l = busL.clone();
-                    notify();
+                    notifyAll();
                     wait();
                     h = busL.clone();
                     inta = false;
@@ -628,7 +628,7 @@ public class Microprocessor extends Thread {
                 busL = new Register8(mar.lower());
                 iom = IOM;
                 read = true;
-                notify();
+                notifyAll();
                 wait();
                 mbr.copy(busL);
                 read = false;
@@ -648,10 +648,10 @@ public class Microprocessor extends Thread {
                 busL = new Register8(mar.lower());
                 iom = IOM;
                 write = true;
-                notify();
+                notifyAll();
                 wait();
                 busL.copy(value);
-                notify();
+                notifyAll();
                 wait();
                 write = false;
             }
@@ -674,11 +674,13 @@ public class Microprocessor extends Thread {
 
     private Register8 getData8FromIO(Register8 address) {
         // Put the 8 bit address in both multiplexed bus
+        System.out.println("get data");
         return getData8(true,new Register16(address,address));
     }
 
     private void setData8ToIO(Register8 address, Register8 value) {
         // Put the 8 bit address in both multiplexed bus
+        System.out.println("set data");
         setData8(true,new Register16(address,address),value);
     }
 

@@ -64,7 +64,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTable;
 
-public class Gui {
+public class Gui
+{
 
     private JFrame frame;
 
@@ -97,11 +98,15 @@ public class Gui {
     /**
      * Launch the application.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
 
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
+        EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                try
+                {
                     // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
                     Gui window = new Gui();
@@ -109,14 +114,17 @@ public class Gui {
                     //  window.updateRegisters();
 
                     // updateRegisters();
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     e.printStackTrace();
                 }
             }
         });
     }
 
-    public void updateRegisters() {
+    public void updateRegisters()
+    {
 
         IR.setText( up.register[0].hex()); // B
         B.setText( up.register[1].hex()); // C
@@ -138,21 +146,22 @@ public class Gui {
     /**
      * Create the application.
      */
-    public Gui() throws IOException {
+    public Gui() throws IOException
+    {
 
         up = new Microprocessor();
         memory = new Memory(65536);
-	ppi = new Ppi(new Register8(0x80));
+        ppi = new Ppi(new Register8(0x80));
         // Connecting Memory
         memory.up = up;
         // Connecting Ppi
-	ppi.up = up;
+        ppi.up = up;
 
         memory.start();
-	ppi.start();
+        ppi.start();
 
-	ppi.set(new Register8(0x83),new Register8(0x90));
-	ppi.set(new Register8(0x80),new Register8(0xFF));
+        ppi.set(new Register8(0x83), new Register8(0x90));
+        ppi.set(new Register8(0x80), new Register8(0xFF));
 
         up.start();
 
@@ -162,11 +171,12 @@ public class Gui {
     /**
      * Initialize the contents of the frame.
      */
-    private void initialize() throws IOException {
+    private void initialize() throws IOException
+    {
 
         // Load Fonts
-        final Font monospace = new Font("Ubuntu Mono", Font.BOLD,18);
-        final Font serif = new Font("Courier", Font.PLAIN,12);
+        final Font monospace = new Font("Ubuntu Mono", Font.BOLD, 18);
+        final Font serif = new Font("Courier", Font.PLAIN, 12);
 
         /*
         // Load images
@@ -178,7 +188,7 @@ public class Gui {
         // Initialize main frame
         frame = new JFrame();
         frame.setBackground(UIManager.getColor("Button.background"));
-        frame.setBounds(0, 0, 1100-118, 700);
+        frame.setBounds(0, 0, 1100 - 118, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
         frame.setResizable(false);
@@ -193,7 +203,7 @@ public class Gui {
         final JTextArea errorMessage = new JTextArea();
         errorMessage.setEditable(false);
         errorMessage.setFont(serif);
-        errorMessage.setBorder(BorderFactory.createEmptyBorder(10,10,15,10));
+        errorMessage.setBorder(BorderFactory.createEmptyBorder(10, 10, 15, 10));
         messageScrollPane.setViewportView(errorMessage);
 
 
@@ -208,7 +218,7 @@ public class Gui {
 
         final JTextArea Opcode = new JTextArea();
         Opcode.setFont(monospace);
-        Opcode.setBorder(BorderFactory.createEmptyBorder(10,10,15,10));
+        Opcode.setBorder(BorderFactory.createEmptyBorder(10, 10, 15, 10));
         opcodeScrollPane.setViewportView(Opcode);
 
         final JScrollPane hexScrollPane = new JScrollPane();
@@ -217,7 +227,7 @@ public class Gui {
         final JTextArea Hex = new JTextArea();
         hexScrollPane.setViewportView(Hex);
         Hex.setFont(monospace);
-        Hex.setBorder(BorderFactory.createEmptyBorder(10,10,15,10));
+        Hex.setBorder(BorderFactory.createEmptyBorder(10, 10, 15, 10));
 
 
         // Registers
@@ -443,23 +453,29 @@ public class Gui {
         ppiPanel1.add(ppiBtnC2);
 
 
-        ppiBtnA2.addMouseListener(new MouseAdapter() {
+        ppiBtnA2.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
                 System.out.println("A");
             }
         });
 
-        ppiBtnB2.addMouseListener(new MouseAdapter() {
+        ppiBtnB2.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
                 System.out.println("B");
             }
         });
 
-        ppiBtnC2.addMouseListener(new MouseAdapter() {
+        ppiBtnC2.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
                 System.out.println("C");
             }
         });
@@ -468,11 +484,11 @@ public class Gui {
         //Memory table
 
         final JScrollPane memoryScrollPane = new JScrollPane();
-        memoryScrollPane.setBounds(943-118, 62, 150, 605);
+        memoryScrollPane.setBounds(943 - 118, 62, 150, 605);
         frame.getContentPane().add(memoryScrollPane);
 
         final JLabel memoryLabel = new JLabel("MEMORY");
-        memoryLabel.setBounds(985-118, 36, 70, 15);
+        memoryLabel.setBounds(985 - 118, 36, 70, 15);
         frame.getContentPane().add(memoryLabel);
 
         Vector<String> colHdrs = new Vector<String>(2);
@@ -482,8 +498,8 @@ public class Gui {
         final int rows = 65536;
         final DefaultTableModel model = new DefaultTableModel(rows, colHdrs.size());
         model.setColumnIdentifiers(colHdrs);
-        for(int i=0; i<rows; i++)
-            model.setValueAt(new Register16(i).hex() ,i ,0);
+        for (int i = 0; i < rows; i++)
+            model.setValueAt(new Register16(i).hex() , i , 0);
 
         table = new JTable(model);
         table.setBounds(5, 5, 245, 620);
@@ -492,7 +508,7 @@ public class Gui {
         // Buttons
 
         final JPanel toolsPanel = new JPanel();
-        toolsPanel.setBounds(0, 0, 1100-118, 33);
+        toolsPanel.setBounds(0, 0, 1100 - 118, 33);
         toolsPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
         toolsPanel.setLayout(null);
         frame.getContentPane().add(toolsPanel);
@@ -530,57 +546,72 @@ public class Gui {
         toolsPanel.add(trapBtn);
 
 
-        trapBtn.addMouseListener(new MouseAdapter() {
+        trapBtn.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
                 up.trap = true;
                 errorMessage.setText("Status: Trap sent.\n" + errorMessage.getText() );
             }
         });
 
-        RST75.addMouseListener(new MouseAdapter() {
+        RST75.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
                 up.r7 = true;
                 errorMessage.setText("Status: Rst 7.5 sent.\n" + errorMessage.getText() );
             }
         });
-        RST65.addMouseListener(new MouseAdapter() {
+        RST65.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
                 up.r6 = true;
                 errorMessage.setText("Status: Rst 6.5 sent.\n" + errorMessage.getText());
             }
         });
-        RST55.addMouseListener(new MouseAdapter() {
+        RST55.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
                 up.r5 = true;
                 errorMessage.setText( "Status: Rst 5.5 sent.\n" + errorMessage.getText() );
             }
         });
-        INTR.addMouseListener(new MouseAdapter() {
+        INTR.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
                 up.intr = true;
                 errorMessage.setText( "Status: Intr sent.\n" + errorMessage.getText());
                 errorMessage.setText( "Error: Programmable Interrupt Controller not found.\n" + errorMessage.getText() );
             }
         });
 
-        singleStep.addMouseListener(new MouseAdapter() {
+        singleStep.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
 
-                try {
+                try
+                {
 
-                    if (!up.active && !up.trap) {
+                    if (!up.active && !up.trap)
+                    {
 
                         up.restartLocation = new Register16(0x8000);
 
                         Seperator tok = new Seperator(Opcode.getText(), false, up.restartLocation.hex());
                         Hex.setText("");
-                        for ( String[] file : tok.value() ) {
+                        for ( String[] file : tok.value() )
+                        {
                             Parser asmParser = new Parser(file[1], false, "asm");
                             Integer address = Integer.parseInt(file[0], 16);
                             memory.load(new Register16(address), asmParser.value());
@@ -590,31 +621,42 @@ public class Gui {
                         // Reset the microprocessor
                         up.trap = true;
                         up.resetin = true;
-                    } else {
+                    }
+                    else
+                    {
                         up.trap = true;
                         up.active = true;
                     }
 
-                } catch (IOException ee) {
-                    errorMessage.setText("Error: "+ee.getMessage() + "\n" + errorMessage.getText() );
-                } catch (ParseException ee) {
-                    errorMessage.setText("Error: "+ee.getMessage() + "\n" + errorMessage.getText() );
+                }
+                catch (IOException ee)
+                {
+                    errorMessage.setText("Error: " + ee.getMessage() + "\n" + errorMessage.getText() );
+                }
+                catch (ParseException ee)
+                {
+                    errorMessage.setText("Error: " + ee.getMessage() + "\n" + errorMessage.getText() );
                 }
             }
         });
 
-        execute.addMouseListener(new MouseAdapter() {
+        execute.addMouseListener(new MouseAdapter()
+        {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e)
+            {
 
-                try {
-                    if (!up.active) {
+                try
+                {
+                    if (!up.active)
+                    {
 
                         up.restartLocation = new Register16(0x8000);
 
                         Seperator tok = new Seperator(Opcode.getText(), false, up.restartLocation.hex());
                         Hex.setText("");
-                        for ( String[] file : tok.value() ) {
+                        for ( String[] file : tok.value() )
+                        {
                             Parser asmParser = new Parser(file[1], false, "asm");
                             Integer address = Integer.parseInt(file[0], 16);
                             memory.load(new Register16(address), asmParser.value());
@@ -625,39 +667,51 @@ public class Gui {
                         // Reset the microprocessor
                         up.trap = false;
                         up.resetin = true;
-                    } else {
+                    }
+                    else
+                    {
                         up.active = false;
                     }
 
-                } catch (IOException ee) {
-                    errorMessage.setText("Error: "+ee.getMessage() + "\n" + errorMessage.getText() );
-                } catch (ParseException ee) {
-                    errorMessage.setText("Error: "+ee.getMessage() + "\n" + errorMessage.getText() );
+                }
+                catch (IOException ee)
+                {
+                    errorMessage.setText("Error: " + ee.getMessage() + "\n" + errorMessage.getText() );
+                }
+                catch (ParseException ee)
+                {
+                    errorMessage.setText("Error: " + ee.getMessage() + "\n" + errorMessage.getText() );
                 }
             }
         });
 
 
-        ActionListener taskPerformer = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+        ActionListener taskPerformer = new ActionListener()
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
 
                 // Update the registers
                 updateRegisters();
 
                 // Update the buttons
-                if ( up.active && !up.trap ) {
+                if ( up.active && !up.trap )
+                {
                     execute.setText("Stop");
                     // execute.setIcon(new ImageIcon(closeimage));
-                } else {
+                }
+                else
+                {
                     execute.setText("Execute");
                     // execute.setIcon(new ImageIcon(executeimage));
                 }
 
                 // Update memory
 
-                for(int i=0; i<rows; i++) {
+                for (int i = 0; i < rows; i++)
+                {
                     Register16 address = new Register16(i);
-                    model.setValueAt( memory.get(address).hex() ,i ,1);
+                    model.setValueAt( memory.get(address).hex() , i , 1);
                 }
 
             }
@@ -668,3 +722,4 @@ public class Gui {
 
     }
 }
+
