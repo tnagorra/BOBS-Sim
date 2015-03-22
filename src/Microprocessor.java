@@ -87,6 +87,9 @@ public class Microprocessor extends Thread {
                     // Signifies that processor was halted
                     if(!active && !trap)
                         System.out.println("Microprocessor Halted!");
+
+                    // Some sleep time  so that processor isn't stressed
+                    Thread.sleep(25);
                 }
             }
 

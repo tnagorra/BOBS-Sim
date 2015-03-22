@@ -93,7 +93,8 @@ public class Gui
 
     Microprocessor up;
     Memory memory;
-    Ppi ppi;
+    Ppi ppi1;
+    Ppi ppi2;
 
     /**
      * Launch the application.
@@ -111,9 +112,6 @@ public class Gui
 
                     Gui window = new Gui();
                     window.frame.setVisible(true);
-                    //  window.updateRegisters();
-
-                    // updateRegisters();
                 }
                 catch (Exception e)
                 {
@@ -149,19 +147,21 @@ public class Gui
     public Gui() throws IOException
     {
 
+        // Initializing Devices
         up = new Microprocessor();
         memory = new Memory(65536);
-        ppi = new Ppi(new Register8(0x80));
-        // Connecting Memory
+        ppi1 = new Ppi(new Register8(0x40));
+        ppi2 = new Ppi(new Register8(0x80));
+
+        // Connecting Memory and Ppi
         memory.up = up;
-        // Connecting Ppi
-        ppi.up = up;
+        ppi1.up = up;
+        ppi2.up = up;
 
+        // Starting Memory and Ppi and Microprocessor
         memory.start();
-        ppi.start();
-
-         ppi.set(new Register8(0x83), new Register8(0x80));
-         ppi.set(new Register8(0x80), new Register8(0xFF));
+        ppi1.start();
+        ppi2.start();
 
         up.start();
 
@@ -417,7 +417,7 @@ public class Gui
         ppiPanel1.add(ppiLabelC2);
 
         ppiTextA2 = new JTextField();
-        ppiTextA2.setEditable(false);
+        ppiTextA2.setEditable(true);
         ppiTextA2.setColumns(10);
         ppiTextA2.setBounds(80, 30, 30, 19);
         ppiTextA2.setText("00");
@@ -458,7 +458,9 @@ public class Gui
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                System.out.println("A");
+                int value = Integer.parseInt(ppiTextA2.getText(),16);
+                int address = 0x80;
+                ppi2.set( new Register8(address), new Register8(value) );
             }
         });
 
@@ -467,7 +469,9 @@ public class Gui
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                System.out.println("B");
+                int value = Integer.parseInt(ppiTextB2.getText(),16);
+                int address = 0x81;
+                ppi2.set( new Register8(address), new Register8(value) );
             }
         });
 
@@ -476,7 +480,9 @@ public class Gui
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                System.out.println("C");
+                int value = Integer.parseInt(ppiTextC2.getText(),16);
+                int address = 0x82;
+                ppi2.set( new Register8(address), new Register8(value) );
             }
         });
 
@@ -696,23 +702,30 @@ public class Gui
 
                 // Update the buttons
                 if ( up.active && !up.trap )
-                {
                     execute.setText("Stop");
-                    // execute.setIcon(new ImageIcon(closeimage));
-                }
                 else
-                {
                     execute.setText("Execute");
-                    // execute.setIcon(new ImageIcon(executeimage));
-                }
 
                 // Update memory
 
-                for (int i = 0; i < rows; i++)
-                {
-                    Register16 address = new Register16(i);
-                    model.setValueAt( memory.get(address).hex() , i , 1);
+                // May cause inaccuracy when using "up.active"
+                if ( up.active || up.trap ) {
+                    for (int i = 0; i < rows; i++)
+                    {
+                        Register16 address = new Register16(i);
+                        model.setValueAt( memory.get(address).hex() , i , 1);
+                    }
                 }
+
+                /*
+                // Update PPI
+                if(ppi2.portAIOfunc())
+                ppiTextA2.setEditable(true);
+                else {
+                ppiTextA2.setEditable(false);
+                ppiTextA2.setText( ppi2.get( new Register8(0x80) ).hex() );
+                }
+                */
 
             }
 
