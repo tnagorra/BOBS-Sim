@@ -160,8 +160,8 @@ public class Gui
         memory.start();
         ppi.start();
 
-        ppi.set(new Register8(0x83), new Register8(0x90));
-        ppi.set(new Register8(0x80), new Register8(0xFF));
+         ppi.set(new Register8(0x83), new Register8(0x80));
+         ppi.set(new Register8(0x80), new Register8(0xFF));
 
         up.start();
 

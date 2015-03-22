@@ -18,6 +18,13 @@ class Ppi extends Thread {
             return false;
         return true;
     }
+    
+    public void debugGet(Register8 addr){
+        if ( !isMine(addr) )
+            throw new IndexOutOfBoundsException();
+        int index = getIndex(addr);
+    }
+
     // Mode Selection for portA
     // controlRegister  PortA
     //    D[6]D[5]      Mode
@@ -320,16 +327,13 @@ class Ppi extends Thread {
                 System.out.println("IO at " + baseAddress.hex() + " started!");
                 while ( true ) {
                     up.wait();
-                    System.out.println("I Waiting complete!");
                     if ( !(up.iom == true) )
                         continue;
-                    System.out.println("I Favorable condition!");
 
                     if (up.write) {
                         Register8 taddress = up.busL.clone();
                         // Shouldn't notify if address doesn't belong
                         // to the io device
-                        System.out.println("Writing: " + taddress.hex() );
                         if (!isMine(taddress))
                             continue;
                         up.notify();
@@ -339,14 +343,11 @@ class Ppi extends Thread {
                         up.notify();
                     } else if (up.read) {
                         Register8 taddress = up.busL.clone();
-                        System.out.println("Reading: " + taddress.hex() );
                         // Shouldn't notify if address doesn't belong
                         // to the io device
                         if (!isMine(taddress))
                             continue;
-                        System.out.println("Accepting : " + taddress.hex() );
                         up.busL = get(taddress);
-                        System.out.println("Bus value is now: " + up.busL.hex() );
                         up.notify();
                     } else {
                         if (up.read && up.write)
