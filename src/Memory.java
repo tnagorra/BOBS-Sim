@@ -27,7 +27,7 @@ class Memory  extends Thread {
     }
 
     // Get data from memory
-    private Register8 get(Register16 position) {
+    public Register8 get(Register16 position) {
         if( !isMine(position))
             throw new IndexOutOfBoundsException();
         // Shouldn't return object

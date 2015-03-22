@@ -149,67 +149,49 @@ public class Gui {
      * Initialize the contents of the frame.
      */
     private void initialize() throws IOException {
+
+        // main frame
+
         frame = new JFrame();
         frame.setBackground(UIManager.getColor("Button.background"));
-        frame.setBounds(0, 0, 1200, 700);
+        frame.setBounds(0, 0, 1100-118, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
         frame.setResizable(false);
 
         final JPanel tools_panel = new JPanel();
-        tools_panel.setBounds(0, 0, 1201, 33);
+        tools_panel.setBounds(0, 0, 1100-118, 33);
         tools_panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+        tools_panel.setLayout(null);
         frame.getContentPane().add(tools_panel);
 
-        final JScrollPane Message_scrollPane = new JScrollPane();
-        Message_scrollPane.setBounds(212, 500, 718, 172);
-        Message_scrollPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-        frame.getContentPane().add(Message_scrollPane);
 
+        final JScrollPane Message_scrollPane = new JScrollPane();
+        Message_scrollPane.setBounds(218, 498, 600, 168);
+        // Message_scrollPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+        frame.getContentPane().add(Message_scrollPane);
         final JTextArea ErrorMessages = new JTextArea();
-        ErrorMessages.setText("Error Pane!\n");
+        // ErrorMessages.setText("Error Pane!\n");
         ErrorMessages.setEditable(false);
         Message_scrollPane.setViewportView(ErrorMessages);
 
-      final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+
+        final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        tabbedPane.setBounds(218, 32, 600, 466);
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        tabbedPane.setBounds(212, 32, 719, 466);
         frame.getContentPane().add(tabbedPane);
 
-      final JScrollPane opcode_scrollPane = new JScrollPane();
-        tabbedPane.addTab("OP-Code", null, opcode_scrollPane, null);
-
+        final JScrollPane opcode_scrollPane = new JScrollPane();
+        tabbedPane.addTab("Mnemonics", null, opcode_scrollPane, null);
         final JTextArea Opcode = new JTextArea();
-        // Opcode.setText("Op-Code text");
         opcode_scrollPane.setViewportView(Opcode);
 
-      final JScrollPane Hex_scrollPane = new JScrollPane();
-        tabbedPane.addTab("HEX", null, Hex_scrollPane, null);
-
+        final JScrollPane Hex_scrollPane = new JScrollPane();
+        tabbedPane.addTab("Opcode", null, Hex_scrollPane, null);
         final JTextArea Hex = new JTextArea();
-        // Hex.setText("HEX code");
         Hex_scrollPane.setViewportView(Hex);
 
-
-        final Image closeimage = ImageIO.read(this.getClass().getResource("imgs/stop1.png"));
-        final Image stepimage = ImageIO.read(getClass().getResource("imgs/SS1.png"));
-        final Image executeimage = ImageIO.read(getClass().getResource("imgs/exec2.png"));
-        tools_panel.setLayout(null);
-
-      final JButton SingleStep = new JButton();
-        SingleStep.setBounds(200, 1, 30, 30);
-        tools_panel.add(SingleStep);
-        SingleStep.setBorder(null);
-        SingleStep.setToolTipText("Single Step");
-        SingleStep.setIcon(new ImageIcon(stepimage));
-
-        final JButton execute = new JButton();
-        execute.setBounds(167, 1, 30, 30);
-        tools_panel.add(execute);
-        execute.setBackground(null);
-        execute.setToolTipText("Execute");
-        execute.setBorder(null);
-        execute.setIcon(new ImageIcon(executeimage));
+        // Registers
 
         JPanel RegisterPanel = new JPanel();
         RegisterPanel.setToolTipText("Current register status");
@@ -371,7 +353,7 @@ public class Gui {
         FLAG.setBackground(UIManager.getColor("Button.background"));
         RegisterPanel.add(FLAG);
 
-
+        // PPI 1
 
         JPanel Ppi1Panel = new JPanel();
         Ppi1Panel.setLayout(null);
@@ -414,13 +396,15 @@ public class Gui {
         PortCTxt_1.setBounds(101, 116, 70, 19);
         Ppi1Panel.add(PortCTxt_1);
 
-      final JButton Updatebtn_1 = new JButton("Update");
+        final JButton Updatebtn_1 = new JButton("Update");
         Updatebtn_1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
             }
         });
         Updatebtn_1.setBounds(42, 147, 117, 25);
         Ppi1Panel.add(Updatebtn_1);
+
+        // PPI 2
 
         JPanel Ppi2_panel = new JPanel();
         Ppi2_panel.setLayout(null);
@@ -463,72 +447,122 @@ public class Gui {
         PortCTxt_2.setBounds(101, 116, 70, 19);
         Ppi2_panel.add(PortCTxt_2);
 
-      final JButton Updatebtn_2 = new JButton("Update");
+        final JButton Updatebtn_2 = new JButton("Update");
         Updatebtn_2.setBounds(42, 147, 117, 25);
         Ppi2_panel.add(Updatebtn_2);
 
-      final JScrollPane MessageScrollPane = new JScrollPane();
-        MessageScrollPane.setBounds(943, 62, 245, 605);
+        final JScrollPane MessageScrollPane = new JScrollPane();
+        MessageScrollPane.setBounds(943-118, 62, 150, 605);
         frame.getContentPane().add(MessageScrollPane);
 
 
         //Memory table
-        int RowNbr;
         Vector<String> colHdrs = new Vector<String>(2);
         colHdrs.addElement(new String("Address"));
         colHdrs.addElement(new String("Value"));
-        RowNbr = 65536;
-
-
+        int RowNbr = 65536;
 
         DefaultTableModel model = new DefaultTableModel(RowNbr, colHdrs.size());
         model.setColumnIdentifiers(colHdrs);
+        for(int i=0; i<RowNbr; i++)
+            model.setValueAt(new Register16(i).hex() ,i ,0);
 
         table = new JTable(model);
         table.setBounds(5, 5, 245, 620);
         MessageScrollPane.setViewportView(table);
 
-        JLabel Memorylbl = new JLabel("Memory");
-        Memorylbl.setBounds(1031, 36, 70, 15);
+        JLabel Memorylbl = new JLabel("MEMORY");
+        Memorylbl.setBounds(985-118, 36, 70, 15);
         frame.getContentPane().add(Memorylbl);
 
+
+        // Interrupt Panel
+        /*
         JPanel InterruptPanel = new JPanel();
         InterruptPanel.setBounds(12, 583, 202, 89);
         frame.getContentPane().add(InterruptPanel);
         InterruptPanel.setLayout(null);
+        */
 
-      final JButton Trapbtn = new JButton("TRAP");
-        Trapbtn.setBounds(0, 0, 89, 22);
-        InterruptPanel.add(Trapbtn);
+        // Buttons
 
-      final JButton RST75 = new JButton(" RST 7.5");
-        RST75.setBounds(101, 0, 89, 22);
-        InterruptPanel.add(RST75);
+        // final Image closeimage = ImageIO.read(this.getClass().getResource("imgs/stop1.png"));
+        // final Image stepimage = ImageIO.read(getClass().getResource("imgs/SS1.png"));
+        // final Image executeimage = ImageIO.read(getClass().getResource("imgs/exec2.png"));
 
-      final JButton RST65 = new JButton("RST 6.5");
-        RST65.setBounds(0, 25, 89, 22);
-        InterruptPanel.add(RST65);
+        final JButton execute = new JButton("Execute");
+        execute.setBounds(10, 3, 90, 24);
+        // execute.setToolTipText("Execute");
+        // execute.setBorder(null);
+        // execute.setIcon(new ImageIcon(executeimage));
+        tools_panel.add(execute);
 
-      final JButton RST55 = new JButton("RST 5.5");
-        RST55.setBounds(101, 25, 89, 22);
-        InterruptPanel.add(RST55);
+        final JButton SingleStep = new JButton("Step");
+        SingleStep.setBounds(100, 3, 70, 24);
+        // SingleStep.setBorder(null);
+        // SingleStep.setToolTipText("Single Step");
+        // SingleStep.setIcon(new ImageIcon(stepimage));
+        tools_panel.add(SingleStep);
 
-      final JButton INTR = new JButton("INTR");
-        INTR.setBounds(0, 50, 89, 22);
-        InterruptPanel.add(INTR);
 
-      final JButton INTA = new JButton("INTA");
-        INTA.setBounds(101, 50, 89, 22);
-        InterruptPanel.add(INTA);
+        final JButton RST75 = new JButton("7.5");
+        RST75.setBounds(190, 3, 70, 24);
+        tools_panel.add(RST75);
+
+        final JButton RST65 = new JButton("6.5");
+        RST65.setBounds(260, 3, 70, 24);
+        tools_panel.add(RST65);
+
+        final JButton RST55 = new JButton("5.5");
+        RST55.setBounds(330, 3, 70, 24);
+        tools_panel.add(RST55);
+
+        final JButton INTR = new JButton("INTR");
+        INTR.setBounds(400, 3, 70, 24);
+        tools_panel.add(INTR);
+
+        final JButton Trapbtn = new JButton("TRAP");
+        Trapbtn.setBounds(470, 3, 70, 24);
+        tools_panel.add(Trapbtn);
+
+
+        Trapbtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                up.trap = true;
+            }
+        });
+        RST75.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                up.r7 = true;
+            }
+        });
+        RST65.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                up.r6 = true;
+            }
+        });
+        RST55.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                up.r5 = true;
+            }
+        });
+        INTR.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                up.intr = true;
+                ErrorMessages.setText( ErrorMessages.getText() + " Couldn't find Programmable Interrupt Controller!\n");
+            }
+        });
 
         SingleStep.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
 
-
-
                 try {
-
 
                     if (!up.active && !up.trap) {
 
@@ -601,18 +635,31 @@ public class Gui {
                 updateRegisters();
 
                 // Update the buttons
-                if ( up.active && !up.trap )
-                    execute.setIcon(new ImageIcon(closeimage));
-                else
-                    execute.setIcon(new ImageIcon(executeimage));
+                if ( up.active && !up.trap ) {
+                    execute.setText("Stop");
+                   // execute.setIcon(new ImageIcon(closeimage));
+                } else {
+                    execute.setText("Execute");
+                   // execute.setIcon(new ImageIcon(executeimage));
+                }
+
+                // Update memory
+
+                for(int i=0; i<RowNbr; i++) {
+                    Register16 address = new Register16(i);
+                    model.setValueAt( memory.get(address).hex() ,i ,1);
+                }
 
             }
+
         };
         // 100 ms delay
         new Timer(30, taskPerformer).start();
 
     }
 }
+
+
 
 
 
