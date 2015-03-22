@@ -3,8 +3,7 @@ class Memory  extends Thread {
     Microprocessor up;
     Register8[] memories;
 
-    // Get if the address belong to me or not
-    // Here we have one single memory not like IO
+    // Get if the address belong to this device
     private boolean isMine(Register16 addr) {
         int index = addr.get();
         if ( index >= memories.length || index < 0 )
@@ -19,14 +18,14 @@ class Memory  extends Thread {
             memories[i] = new Register8(0);
     }
 
-    // Load data using integer array from outside
+    // Load data using integer array into memory
     public void load( Register16 position, int[] opcode ) {
         for (int i = 0; i < opcode.length && i + position.get() < memories.length; i++) {
             memories[i + position.get()] = new Register8(opcode[i]);
         }
     }
 
-    // Get data from memory
+    // Get data from address 'position' of memory
     public Register8 get(Register16 position) {
         if( !isMine(position))
             throw new IndexOutOfBoundsException();
@@ -34,7 +33,7 @@ class Memory  extends Thread {
         return memories[position.get()].clone();
     }
 
-    // Set data from memory
+    // Set data from 'reg' to address 'position' of memory
     private void set(Register16 position, Register8 reg) {
         if( !isMine(position))
             throw new IndexOutOfBoundsException();
@@ -42,7 +41,7 @@ class Memory  extends Thread {
         memories[position.get()].copy(reg);
     }
 
-
+    // Main running loop
     public void run() {
         try {
             synchronized (up) {
@@ -85,7 +84,7 @@ class Memory  extends Thread {
         }
     }
 
-
+    /*
     public void print( Register16 position, int total) {
         System.out.print( position.hex() + " : ");
         for (int i = 0; i < total && i + position.get() < memories.length; i++) {
@@ -93,6 +92,7 @@ class Memory  extends Thread {
         }
         System.out.print("\n");
     }
+    */
 
 }
 

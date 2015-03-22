@@ -12,12 +12,14 @@ class Seperator extends Tokenizer {
     protected String[][] tokenValue;
     protected String defaultValue;
 
-    public Seperator(String name, boolean open,String value) throws IOException, ParseException {
+    // Constructor for Parser with name, open mode, default address value
+    public Seperator(String name, boolean open, String value) throws IOException, ParseException {
         super(name,open,Seperator.tokenReplace,Seperator.tokenSplit);
         defaultValue = value;
         assignValue();
     }
 
+    // Assign values of tokens
     private void assignValue(){
         tokenValue = new String[tokens.length][2];
 
@@ -36,11 +38,11 @@ class Seperator extends Tokenizer {
 
     }
 
+    // Retuns token values as String[][]
     public String[][] value() {
         return tokenValue;
     }
 
-    // @&@& is just some splitting value
     private static String tokenSplit = " *@&@& *";
 
     private static String[][] tokenReplace = {
@@ -53,4 +55,6 @@ class Seperator extends Tokenizer {
             "@&@& $1 "
         }
     };
+
+    // NOTE: @&@& is just some splitting value
 }

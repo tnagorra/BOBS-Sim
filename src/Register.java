@@ -7,8 +7,7 @@ public class Register {
 
     protected int m_value;
 
-    // CONSTRUCTOR
-
+    // Constructor for register with value and register length
     public Register(int val,int length) {
         m_length = length;
         m_halflength = m_length/2;
@@ -18,11 +17,10 @@ public class Register {
         this.set(val);
     }
 
+    // Clone Register
     public Register clone() {
         return new Register(m_value,m_length);
     }
-
-    // DEBUGGING FUNCTIONS
 
     // Returns Hex representation of value in string
     public String hex(){
@@ -33,10 +31,6 @@ public class Register {
     public String bin(){
         // get one more bit and then truncate later so that we get leading zeros
         return  Integer.toBinaryString( (m_maxvalue+1) | m_value).substring(1);
-    }
-    // Display the current register value
-    public void print(){
-        System.out.println(hex()+" "+bin());
     }
 
     // ACCESS FUNCTIONS
@@ -75,6 +69,7 @@ public class Register {
         m_value = val & m_maxvalue;
     }
 
+    // Copies value of register to register 'reg'
     public void copy(Register reg){
         set(reg.get());
     }

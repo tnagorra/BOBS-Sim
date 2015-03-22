@@ -2,17 +2,22 @@
 import java.io.*;
 
 public class Microprocessor extends Thread {
+    // Check if active or not
     public boolean active;
-    public boolean trapped;
+    // Restart location of microprocessor
+    public Register16 restartLocation;
 
+    // Signals iom,r,w
     public boolean iom, read, write;
 
     // Interrupt masks
     public boolean sod, sid, m7, m6, m5, ie;
     // Interrupts
     public boolean r7, r6, r5, trap, intr, inta;
+    // Reset in/out
     public boolean resetin, resetout;
 
+    // Multiplexed bus of Microprocessor
     public Register8 busL, busH;
 
     private Register16 mar;
@@ -24,11 +29,7 @@ public class Microprocessor extends Thread {
     public Register8[] register;
     public Flag flag;
 
-    // public Memory memory;
-
-    public Register16 restartLocation;
-
-    // Constructor
+    // Constructor for microprocessor
     public Microprocessor() {
         restartLocation = new Register16(0x0000);
 
@@ -64,6 +65,7 @@ public class Microprocessor extends Thread {
         inta = m7 = m6 = m5 = false;
     }
 
+    // Main running loop
     public void run() {
         System.out.println("Microprocessor started!");
         try {
@@ -71,28 +73,18 @@ public class Microprocessor extends Thread {
                 // Wait for some signal
                 Thread.sleep(50);
 
-                if( resetin)
+                // First reset for activation
+                if(resetin)
                     resetHandler();
 
                 while (active) {
-
                     // Initiates the microprocessor / restarts it
                     resetHandler();
-
-                    // For single stepping
-                    // singlestep = interactHandler(verbose,singlestep);
-
-                    // TODO debugging
-                    // print(true);
-                    // Thread.sleep(100);
-
                     // Execute an instruction
                     execute();
-
                     // Handler interrupts
                     interruptHandler();
-
-                    // Thread.sleep(1);
+                    // Signifies that processor was halted
                     if(!active && !trap)
                         System.out.println("Microprocessor Halted!");
                 }
@@ -103,35 +95,7 @@ public class Microprocessor extends Thread {
         }
     }
 
-
-    /*
-
-    // Start the microprocessor operation
-    // Jumps if resetin is true
-    public void execute(Register16 jmpto, boolean once) throws InterruptedException, IOException {
-        do {
-            // Initiates the microprocessor / restarts it
-            resetHandler(jmpto);
-
-            // For single stepping
-            // singlestep = interactHandler(verbose,singlestep);
-
-            // Execute an instruction
-            execute();
-            // Handler interrupts
-            interruptHandler();
-
-            // Thread.sleep(1);
-        } while (active && !once);
-
-        // So that microprocessor can run again
-        if(!active && !resetin) {
-            resetin = true;
-            System.out.println("Microprocessor Stopped!");
-        }
-    }
-    */
-
+    // Handles the reset operation of the microprocessor
     private void resetHandler() throws InterruptedException {
         if (resetin) {
 
@@ -149,6 +113,7 @@ public class Microprocessor extends Thread {
         }
     }
 
+    /*
     private boolean interactHandler(boolean verbose, boolean singlestep) throws IOException, InterruptedException {
         if (singlestep) {
             print(verbose);
@@ -168,6 +133,7 @@ public class Microprocessor extends Thread {
         }
         return singlestep;
     }
+    */
 
     private void interruptHandler() throws InterruptedException {
         if( trap ) {
@@ -635,11 +601,11 @@ public class Microprocessor extends Thread {
             }
             // IN
             else if( ir.get(5,0) == 0b011011) {
-                //setA( getDataFromIO(readData8FromMemory()) );
+                setA( getData8FromIO(getData8FromMemoryPC()) );
             }
             // OUT
             else if( ir.get(5,0) == 0b010011) {
-                //setDataToIO(readData8FromMemory(),getA());
+                setData8ToIO(getData8FromMemoryPC(),getA());
             } else {
                 missed();
             }
@@ -706,12 +672,14 @@ public class Microprocessor extends Thread {
 
     // IO to Register Transfer
 
-    private Register8 getData8FromIO(Register16 address) {
-        return getData8(true,address);
+    private Register8 getData8FromIO(Register8 address) {
+        // Put the 8 bit address in both multiplexed bus
+        return getData8(true,new Register16(address,address));
     }
 
-    private void setData8ToIO(Register16 address, Register8 value) {
-        setData8(true,address,value);
+    private void setData8ToIO(Register8 address, Register8 value) {
+        // Put the 8 bit address in both multiplexed bus
+        setData8(true,new Register16(address,address),value);
     }
 
     // Memory to Register Transfer using PC
@@ -830,6 +798,7 @@ public class Microprocessor extends Thread {
         return register[6];
     }
 
+    /*
     // Print the status of the program
     public void print(boolean verbose) {
         if(verbose) {
@@ -845,16 +814,11 @@ public class Microprocessor extends Thread {
             System.out.println("SP\t: "+sp.hex());
         }
     }
+    */
 
     // Print if any statement is missed
     public void missed() {
         System.out.println("MISSED " +pc.hex()+ " : "+ ir.bin() );
     }
 
-
 }
-
-
-
-
-

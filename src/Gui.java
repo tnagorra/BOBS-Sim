@@ -138,7 +138,8 @@ public class Gui {
 
         up = new Microprocessor();
         memory = new Memory(65536);
-        Connector.connect(up, memory);
+        // Connecting Memory
+        memory.up = up;
         memory.start();
         up.start();
 
@@ -530,24 +531,28 @@ public class Gui {
             @Override
             public void mouseClicked(MouseEvent e) {
                 up.trap = true;
+                ErrorMessages.setText( ErrorMessages.getText() + "Trap on.\n");
             }
         });
         RST75.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 up.r7 = true;
+                ErrorMessages.setText( ErrorMessages.getText() + "Rst 7.5 on.\n");
             }
         });
         RST65.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 up.r6 = true;
+                ErrorMessages.setText( ErrorMessages.getText() + "Rst 6.5 on.\n");
             }
         });
         RST55.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 up.r5 = true;
+                ErrorMessages.setText( ErrorMessages.getText() + "Rst 5.5 on.\n");
             }
         });
         INTR.addMouseListener(new MouseAdapter() {
@@ -658,10 +663,3 @@ public class Gui {
 
     }
 }
-
-
-
-
-
-
-

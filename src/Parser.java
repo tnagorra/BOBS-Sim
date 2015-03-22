@@ -8,13 +8,13 @@ class Parser extends Tokenizer {
 
     protected int[] tokenValue;
 
+    // Constructor for Parser with name, open mode, type of data
     public Parser(String name, boolean open, String datatype) throws IOException, ParseException {
         super(name,open,Parser.tokenReplace,Parser.tokenSplit);
-        //print();
 
         // datatype doesn't matter much, if a data file
         // is sent as asm, it will still be okay with
-        // a little hoverhead only
+        // a little overhead only
         if(datatype=="asm") {
             translateOpcode();
         } else if (datatype=="data") {
@@ -26,10 +26,12 @@ class Parser extends Tokenizer {
         assignValue();
     }
 
+    // Retuns token values as int[]
     public int[] value() {
         return tokenValue;
     }
 
+    // Retuns token values as String
     public String content(){
         String output = new String();
         for ( int val:tokenValue)
@@ -46,6 +48,7 @@ class Parser extends Tokenizer {
         }
     }
 
+    // Check if the tokens are hex numbers
     private void checkByteCode() throws ParseException {
         for(int i=0;i<tokens.length;i++){
             // If they 8bit numbers then throw an error
@@ -62,10 +65,6 @@ class Parser extends Tokenizer {
             tokenValue[i++] = Integer.parseInt(token,16);
     }
 
-    // Doesn't support labels
-    // All numbers are in Hexadecimal
-
-    // Doen't support other whitespaces except space and newline
     private static String tokenSplit = "( *, *)|(( *\n+ *)+)|( +)";
 
     private static String[][] tokenReplace = {
@@ -104,6 +103,11 @@ class Parser extends Tokenizer {
         {"[ *\n *]*$",""},
         {"^[ *\n *]*",""},
     };
+
+    // NOTE
+    // Doesn't support labels
+    // All numbers are in Hexadecimal
+    // Doen't support other whitespaces except space and newline
 
     private static final Map<String , String> tokenOpcode;
     static {

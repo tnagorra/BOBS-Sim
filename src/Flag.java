@@ -1,6 +1,6 @@
 public class Flag extends Register8 {
 
-    // Constructor
+    // Constructor of Flag
     public Flag(int val) {
         super(val);
     }
@@ -17,22 +17,22 @@ public class Flag extends Register8 {
         }
     }
 
-    // Get the flag
+    // Get the flag from string
     public boolean get(String flg){
         return get(index(flg));
     }
-    // Update the flag
+
+    // Update the flag bit
     public void set(String flg,boolean value){
         set(index(flg),value);
     }
 
+    // Update the flag using register value
     public void set(Register8 reg){
         super.set(reg.m_value);
     }
 
-    // DEBUGGING
-
-    // Displays the flag
+    // Return flags as string
     public String value() {
         String flags = "";
         if( get("C") ) flags += "C ";
@@ -41,9 +41,6 @@ public class Flag extends Register8 {
         if( get("Z") ) flags += "Z ";
         if( get("S") ) flags += "S ";
         return flags;
-        /*
-        if( !flags.equals(""))
-            System.out.println(flags);
-            */
     }
+
 }
