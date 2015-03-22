@@ -13,7 +13,7 @@ JMP 7000
 0A 00 0F 01 02 07 03 05 07 06
 
 @7000 ; Bubble sorting Descending at 7000
-MVI E,0Ah
+MVI E,64h
 MOV D,E             ; 7002
 LXI H,9000h
 MOV A,M
@@ -36,7 +36,7 @@ JMP 8000            ; Halt
 
 @7500 ; Selection Sorting Ascending at 7500
 LXI H, 9000H
-MVI B, 0AH
+MVI B, 64H
 MOV C, B            ;7505
 MOV D, H
 MOV E, L
