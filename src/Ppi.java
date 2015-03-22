@@ -18,7 +18,7 @@ class Ppi extends Thread {
             return false;
         return true;
     }
-    
+
     public void debugGet(Register8 addr){
         if ( !isMine(addr) )
             throw new IndexOutOfBoundsException();
@@ -74,7 +74,7 @@ class Ppi extends Thread {
     // 0 = write(output)
     // 1 = read(input)
     private boolean portCUpperIOfunc() {
-        return ports[3].get(1);
+        return ports[3].get(3);
     }
 
     // returns the IO function of portA as boolean
@@ -88,7 +88,7 @@ class Ppi extends Thread {
     // 0 = write(output)
     // 1 = read(input)
     private boolean portBIOfunc() {
-        return ports[3].get(3);
+        return ports[3].get(1);
     }
 
     // Get the index according to address
@@ -308,17 +308,76 @@ class Ppi extends Thread {
     }
 
     // Get data from IO port
-    public Register8 get(Register8 position) {
+    private Register8 get(Register8 position) {
         if ( !isMine(position) )
             throw new IndexOutOfBoundsException();
         return ReadPort(getIndex(position));
     }
 
     // Set data to IO port
-    public void  set(Register8 position, Register8 reg) {
+    private void  set(Register8 position, Register8 reg) {
         if ( !isMine(position) )
             throw new IndexOutOfBoundsException();
         WritePort(getIndex(position), reg.get());
+    }
+
+    // External interface to Set Values of Ports
+    public void externalSet(Register8 position, Register8 value) {
+        if ( !isMine(position) )
+            throw new IndexOutOfBoundsException();
+        int index = getIndex(position);
+        // External device can write to PortA, PortB, PortC only
+        if(index > 2)
+            throw new IndexOutOfBoundsException();
+        // Set value of Port C
+        if(index == 2) {
+            if(portCLowerIOfunc()) {
+                int data = value.get() & 0x0f;
+                data |= ports[2].get() & 0xf0;
+                ports[2].set(data);
+            }
+            if(portCUpperIOfunc()) {
+                int data = value.get() & 0xf0;
+                data |= ports[2].get() & 0x0f;
+                ports[2].set(data);
+            }
+        }
+        // Set value of Port B
+        if (index == 1) {
+            if(portBIOfunc())
+                ports[1].set(value.get());
+        }
+        // Set value of Port A
+        if (index == 0){
+            if(portAIOfunc())
+                ports[0].set(value.get());
+        }
+    }
+
+    // External interface to read values from ports
+    public Register8 externalGet(Register8 position) {
+        if ( !isMine(position) )
+            throw new IndexOutOfBoundsException();
+        int index = getIndex(position);
+        // External device can read from portA , portB, portC only
+        if(index > 2)
+            throw new IndexOutOfBoundsException();
+        // Get value of Port C
+        if(index == 2) {
+            if((portCLowerIOfunc() == false) | (portCUpperIOfunc() == false)) {
+                return new Register8(ports[2].get());
+            }
+            // Get value of Port B
+            if (index == 1) {
+                if(portBIOfunc() == false)
+                    return new Register8(ports[1].get());
+            }
+            // Get value of Port A
+            if (index == 0){
+                if(portAIOfunc() == false)
+                    return new Register8(ports[0].get());
+            }
+        }
     }
 
     public void run() {
