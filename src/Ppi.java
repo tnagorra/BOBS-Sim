@@ -7,9 +7,9 @@
 //      Manage IO / BSR mode when writing in ports[3]
 
 class Ppi extends Thread {
-    Microprocessor up;
-    Register8[] ports;
-    Register8 baseAddress;
+    public Microprocessor up;
+    public Register8[] ports;
+    public Register8 baseAddress;
 
     // Get if the address belong to me or not
     private boolean isMine(Register8 addr) {
@@ -19,10 +19,11 @@ class Ppi extends Thread {
         return true;
     }
 
-    public void debugGet(Register8 addr){
+    public void debugGet(Register8 addr) {
         if ( !isMine(addr) )
             throw new IndexOutOfBoundsException();
         int index = getIndex(addr);
+        System.out.println( ports[index].hex());
     }
 
     // Mode Selection for portA
@@ -66,28 +67,28 @@ class Ppi extends Thread {
     // returns the mode of PortC Lower as boolean
     // 0 = write(output)
     // 1 = read(input)
-    private boolean portCLowerIOfunc() {
+    public boolean portCLowerIOfunc() {
         return ports[3].get(0);
     }
 
     // returns the IO function of portC Upper as boolean
     // 0 = write(output)
     // 1 = read(input)
-    private boolean portCUpperIOfunc() {
+    public boolean portCUpperIOfunc() {
         return ports[3].get(3);
     }
 
     // returns the IO function of portA as boolean
     // 0 = write(output)
     // 1 = read(input)
-    private boolean portAIOfunc() {
+    public boolean portAIOfunc() {
         return ports[3].get(4);
     }
 
     // returns the IO function of portB as boolean
     // 0 = write(output)
     // 1 = read(input)
-    private boolean portBIOfunc() {
+    public boolean portBIOfunc() {
         return ports[3].get(1);
     }
 
@@ -115,7 +116,7 @@ class Ppi extends Thread {
     private int readPortC() {
         // Port A in SimpleIO mode
         int data = 0x0;
-        if(ModeSelect(0) == 0){
+        if(ModeSelect(0) == 0) {
             //Port B in SimpleIO mode
             if(ModeSelect(1) == 0) {
                 // Read from port C Upper or C Lower or Both
@@ -142,8 +143,7 @@ class Ppi extends Thread {
                 // with the Microprocessor or other Devices
                 if(portCLowerIOfunc())
                     data = ports[2].get() & 0x0f;
-            }
-            else if (ModeSelect(1) == 1) {
+            } else if (ModeSelect(1) == 1) {
                 // PortC cannot be accessed
                 // Port C Upper is used for performing Handshaking of Port A
                 // Port C Lower is used for performing Handshaking of Port B
@@ -187,14 +187,13 @@ class Ppi extends Thread {
             }
         }
         // Read from port A
-        else if(index == 0){
+        else if(index == 0) {
             if(portAIOfunc()) {
                 data = ports[index].get();
             }
         }
         // Read from Control Register
-        else
-        {
+        else {
             data = ports[3].get();
         }
         return new Register8(data);
@@ -203,7 +202,7 @@ class Ppi extends Thread {
     // Handle Writing data to Port C based on Modes of PortA and Port B
     private void writePortC(int value) {
         // Port A in SimpleIO mode
-        if(ModeSelect(0) == 0){
+        if(ModeSelect(0) == 0) {
             //Port B in SimpleIO mode
             if(ModeSelect(1) == 0) {
                 // Write to port C Upper or C Lower or Both
@@ -242,8 +241,7 @@ class Ppi extends Thread {
                     data |= (value & 0x0f);
                     ports[2].set(data);
                 }
-            }
-            else if (ModeSelect(1) == 1) {
+            } else if (ModeSelect(1) == 1) {
                 // PortC cannot be accessed
                 // Port C Upper is used for performing Handshaking of Port A
                 // Port C Lower is used for performing Handshaking of Port B
@@ -302,7 +300,7 @@ class Ppi extends Thread {
         // Write to PortB
         else {
             if(portBIOfunc() == false) {
-                ports[2].set(value);
+                ports[index].set(value);
             }
         }
     }
@@ -348,7 +346,7 @@ class Ppi extends Thread {
                 ports[1].set(value.get());
         }
         // Set value of Port A
-        if (index == 0){
+        if (index == 0) {
             if(portAIOfunc())
                 ports[0].set(value.get());
         }
@@ -367,17 +365,18 @@ class Ppi extends Thread {
             if((portCLowerIOfunc() == false) | (portCUpperIOfunc() == false)) {
                 return new Register8(ports[2].get());
             }
-            // Get value of Port B
-            if (index == 1) {
-                if(portBIOfunc() == false)
-                    return new Register8(ports[1].get());
-            }
-            // Get value of Port A
-            if (index == 0){
-                if(portAIOfunc() == false)
-                    return new Register8(ports[0].get());
-            }
         }
+        // Get value of Port B
+        if (index == 1) {
+            if(portBIOfunc() == false)
+                return new Register8(ports[1].get());
+        }
+        // Get value of Port A
+        if (index == 0) {
+            if(portAIOfunc() == false)
+                return new Register8(ports[0].get());
+        }
+        return new Register8(0x00);
     }
 
     public void run() {
@@ -425,3 +424,4 @@ class Ppi extends Thread {
 
     }
 }
+

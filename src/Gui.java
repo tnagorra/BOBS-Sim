@@ -82,12 +82,16 @@ public class Gui
     private JTextField PSWL;
     private JTextField FLAG;
 
-    private JTextField PortATxt_1;
-    private JTextField PortBTxt_1;
-    private JTextField PortCTxt_1;
     private JTextField ppiTextA2;
     private JTextField ppiTextB2;
-    private JTextField ppiTextC2;
+    private JTextField ppiTextCl2;
+    private JTextField ppiTextCu2;
+
+    private JTextField ppiTextA1;
+    private JTextField ppiTextB1;
+    private JTextField ppiTextCl1;
+    private JTextField ppiTextCu1;
+
 
     private JTable table;
 
@@ -392,37 +396,169 @@ public class Gui
         registerPanel.add(FLAG);
 
 
-        // PPI 2
+
+
+        // PPI 1
         final JPanel ppiPanel1 = new JPanel();
         ppiPanel1.setLayout(null);
         ppiPanel1.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
         ppiPanel1.setBackground(UIManager.getColor("Button.background"));
-        ppiPanel1.setBounds(8, 405, 205, 120);
+        ppiPanel1.setBounds(8, 225+2, 205, 160);
         frame.getContentPane().add(ppiPanel1);
 
-        final JLabel ppiLabel2 = new JLabel("PPI @40");
+        final JLabel ppiLabel1 = new JLabel("PPI @"+ppi1.baseAddress.hex());
+        ppiLabel1.setBounds(78, 4, 80, 15);
+        ppiPanel1.add(ppiLabel1);
+
+        final JLabel ppiLabelA1 = new JLabel("PortA");
+        ppiLabelA1.setBounds(20, 30, 50, 15);
+        ppiPanel1.add(ppiLabelA1);
+
+        final JLabel ppiLabelB1 = new JLabel("PortB");
+        ppiLabelB1.setBounds(20, 60, 50, 15);
+        ppiPanel1.add(ppiLabelB1);
+
+        final JLabel ppiLabelCu1 = new JLabel("PortCu");
+        ppiLabelCu1.setBounds(20, 90, 50, 15);
+        ppiPanel1.add(ppiLabelCu1);
+
+        final JLabel ppiLabelCl1 = new JLabel("PortCl");
+        ppiLabelCl1.setBounds(20, 120, 50, 15);
+        ppiPanel1.add(ppiLabelCl1);
+
+        ppiTextA1 = new JTextField();
+        ppiTextA1.setEditable(false);
+        ppiTextA1.setColumns(10);
+        ppiTextA1.setBounds(80, 30, 30, 19);
+        ppiTextA1.setText("00");
+        ppiTextA1.setHorizontalAlignment(SwingConstants.CENTER);
+        ppiPanel1.add(ppiTextA1);
+
+        ppiTextB1 = new JTextField();
+        ppiTextB1.setEditable(false);
+        ppiTextB1.setColumns(10);
+        ppiTextB1.setBounds(80, 60, 30, 19);
+        ppiTextB1.setText("00");
+        ppiTextB1.setHorizontalAlignment(SwingConstants.CENTER);
+        ppiPanel1.add(ppiTextB1);
+
+
+        ppiTextCu1 = new JTextField();
+        ppiTextCu1.setEditable(false);
+        ppiTextCu1.setColumns(10);
+        ppiTextCu1.setBounds(80, 90, 30, 19);
+        ppiTextCu1.setText("0");
+        ppiTextCu1.setHorizontalAlignment(SwingConstants.CENTER);
+        ppiPanel1.add(ppiTextCu1);
+
+        ppiTextCl1 = new JTextField();
+        ppiTextCl1.setEditable(false);
+        ppiTextCl1.setColumns(10);
+        ppiTextCl1.setBounds(80, 110, 30, 19);
+        ppiTextCl1.setText("0");
+        ppiTextCl1.setHorizontalAlignment(SwingConstants.CENTER);
+        ppiPanel1.add(ppiTextCl1);
+
+
+
+        final JButton ppiBtnA1 = new JButton("Stb");
+        ppiBtnA1.setBounds(125, 30, 60, 19);
+        ppiPanel1.add(ppiBtnA1);
+
+        final JButton ppiBtnB1 = new JButton("Stb");
+        ppiBtnB1.setBounds(125, 60, 60, 19);
+        ppiPanel1.add(ppiBtnB1);
+
+        final JButton ppiBtnCu1 = new JButton("Stb");
+        ppiBtnCu1.setBounds(125, 90, 60, 19);
+        ppiPanel1.add(ppiBtnCu1);
+
+        final JButton ppiBtnCl1 = new JButton("Stb");
+        ppiBtnCl1.setBounds(125, 120, 60, 19);
+        ppiPanel1.add(ppiBtnCl1);
+
+
+        ppiBtnA1.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                memory.print( new Register16(0x9000), 100);
+                int value = Integer.parseInt(ppiTextA1.getText(),16);
+                int address = 0x40;
+                ppi1.externalSet( new Register8(address), new Register8(value) );
+            }
+        });
+
+        ppiBtnB1.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                int value = Integer.parseInt(ppiTextB1.getText(),16);
+                int address = 0x41;
+                ppi1.externalSet( new Register8(address), new Register8(value) );
+            }
+        });
+
+        ppiBtnCl1.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                int value = Integer.parseInt(ppiTextCu1.getText()+ppiTextCl1.getText(),16);
+                int address = 0x42;
+                ppi1.externalSet( new Register8(address), new Register8(value) );
+            }
+        });
+
+        ppiBtnCu1.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                int value = Integer.parseInt(ppiTextCu1.getText()+ppiTextCl1.getText(),16);
+                int address = 0x42;
+                ppi1.externalSet( new Register8(address), new Register8(value) );
+            }
+        });
+
+
+        // PPI 2
+        final JPanel ppiPanel2 = new JPanel();
+        ppiPanel2.setLayout(null);
+        ppiPanel2.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+        ppiPanel2.setBackground(UIManager.getColor("Button.background"));
+        ppiPanel2.setBounds(8, 389, 205, 160);
+        frame.getContentPane().add(ppiPanel2);
+
+        final JLabel ppiLabel2 = new JLabel("PPI @"+ppi2.baseAddress.hex());
         ppiLabel2.setBounds(78, 4, 80, 15);
-        ppiPanel1.add(ppiLabel2);
+        ppiPanel2.add(ppiLabel2);
 
-        final JLabel ppiLabelA2 = new JLabel("Port A");
+        final JLabel ppiLabelA2 = new JLabel("PortA");
         ppiLabelA2.setBounds(20, 30, 50, 15);
-        ppiPanel1.add(ppiLabelA2);
+        ppiPanel2.add(ppiLabelA2);
 
-        final JLabel ppiLabelB2 = new JLabel("Port B");
+        final JLabel ppiLabelB2 = new JLabel("PortB");
         ppiLabelB2.setBounds(20, 60, 50, 15);
-        ppiPanel1.add(ppiLabelB2);
+        ppiPanel2.add(ppiLabelB2);
 
-        final JLabel ppiLabelC2 = new JLabel("Port C");
-        ppiLabelC2.setBounds(20, 90, 50, 15);
-        ppiPanel1.add(ppiLabelC2);
+        final JLabel ppiLabelCu2 = new JLabel("PortCu");
+        ppiLabelCu2.setBounds(20, 90, 50, 15);
+        ppiPanel2.add(ppiLabelCu2);
+
+        final JLabel ppiLabelCl2 = new JLabel("PortCl");
+        ppiLabelCl2.setBounds(20, 120, 50, 15);
+        ppiPanel2.add(ppiLabelCl2);
 
         ppiTextA2 = new JTextField();
-        ppiTextA2.setEditable(true);
+        ppiTextA2.setEditable(false);
         ppiTextA2.setColumns(10);
         ppiTextA2.setBounds(80, 30, 30, 19);
         ppiTextA2.setText("00");
         ppiTextA2.setHorizontalAlignment(SwingConstants.CENTER);
-        ppiPanel1.add(ppiTextA2);
+        ppiPanel2.add(ppiTextA2);
 
         ppiTextB2 = new JTextField();
         ppiTextB2.setEditable(false);
@@ -430,27 +566,42 @@ public class Gui
         ppiTextB2.setBounds(80, 60, 30, 19);
         ppiTextB2.setText("00");
         ppiTextB2.setHorizontalAlignment(SwingConstants.CENTER);
-        ppiPanel1.add(ppiTextB2);
+        ppiPanel2.add(ppiTextB2);
 
-        ppiTextC2 = new JTextField();
-        ppiTextC2.setEditable(false);
-        ppiTextC2.setColumns(10);
-        ppiTextC2.setBounds(80, 90, 30, 19);
-        ppiTextC2.setText("00");
-        ppiTextC2.setHorizontalAlignment(SwingConstants.CENTER);
-        ppiPanel1.add(ppiTextC2);
+
+        ppiTextCu2 = new JTextField();
+        ppiTextCu2.setEditable(false);
+        ppiTextCu2.setColumns(10);
+        ppiTextCu2.setBounds(80, 90, 30, 19);
+        ppiTextCu2.setText("0");
+        ppiTextCu2.setHorizontalAlignment(SwingConstants.CENTER);
+        ppiPanel2.add(ppiTextCu2);
+
+        ppiTextCl2 = new JTextField();
+        ppiTextCl2.setEditable(false);
+        ppiTextCl2.setColumns(10);
+        ppiTextCl2.setBounds(80, 120, 30, 19);
+        ppiTextCl2.setText("0");
+        ppiTextCl2.setHorizontalAlignment(SwingConstants.CENTER);
+        ppiPanel2.add(ppiTextCl2);
+
+
 
         final JButton ppiBtnA2 = new JButton("Stb");
         ppiBtnA2.setBounds(125, 30, 60, 19);
-        ppiPanel1.add(ppiBtnA2);
+        ppiPanel2.add(ppiBtnA2);
 
         final JButton ppiBtnB2 = new JButton("Stb");
         ppiBtnB2.setBounds(125, 60, 60, 19);
-        ppiPanel1.add(ppiBtnB2);
+        ppiPanel2.add(ppiBtnB2);
 
-        final JButton ppiBtnC2 = new JButton("Stb");
-        ppiBtnC2.setBounds(125, 90, 60, 19);
-        ppiPanel1.add(ppiBtnC2);
+        final JButton ppiBtnCu2 = new JButton("Stb");
+        ppiBtnCu2.setBounds(125, 90, 60, 19);
+        ppiPanel2.add(ppiBtnCu2);
+
+        final JButton ppiBtnCl2 = new JButton("Stb");
+        ppiBtnCl2.setBounds(125, 120, 60, 19);
+        ppiPanel2.add(ppiBtnCl2);
 
 
         ppiBtnA2.addMouseListener(new MouseAdapter()
@@ -460,7 +611,7 @@ public class Gui
             {
                 int value = Integer.parseInt(ppiTextA2.getText(),16);
                 int address = 0x80;
-                ppi2.set( new Register8(address), new Register8(value) );
+                ppi2.externalSet( new Register8(address), new Register8(value) );
             }
         });
 
@@ -471,18 +622,29 @@ public class Gui
             {
                 int value = Integer.parseInt(ppiTextB2.getText(),16);
                 int address = 0x81;
-                ppi2.set( new Register8(address), new Register8(value) );
+                ppi2.externalSet( new Register8(address), new Register8(value) );
             }
         });
 
-        ppiBtnC2.addMouseListener(new MouseAdapter()
+        ppiBtnCl2.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                int value = Integer.parseInt(ppiTextC2.getText(),16);
+                int value = Integer.parseInt(ppiTextCu2.getText()+ppiTextCl2.getText(),16);
                 int address = 0x82;
-                ppi2.set( new Register8(address), new Register8(value) );
+                ppi2.externalSet( new Register8(address), new Register8(value) );
+            }
+        });
+
+        ppiBtnCu2.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                int value = Integer.parseInt(ppiTextCu2.getText()+ppiTextCl2.getText(),16);
+                int address = 0x82;
+                ppi2.externalSet( new Register8(address), new Register8(value) );
             }
         });
 
@@ -717,15 +879,47 @@ public class Gui
                     }
                 }
 
-                /*
                 // Update PPI
-                if(ppi2.portAIOfunc())
-                ppiTextA2.setEditable(true);
-                else {
-                ppiTextA2.setEditable(false);
-                ppiTextA2.setText( ppi2.get( new Register8(0x80) ).hex() );
+                // Not used because this is external device
+
+                // true when ppi in output mode
+                if(!ppi2.portAIOfunc()){
+                    ppiTextA2.setEditable(false);
+                    ppiTextA2.setText( ppi2.externalGet( new Register8(0x80) ).hex() );
+                } else {
+                    ppiTextA2.setEditable(true);
                 }
-                */
+
+
+                if(!ppi2.portBIOfunc()){
+                    ppiTextB2.setEditable(false);
+                    ppiTextB2.setText( ppi2.externalGet( new Register8(0x81) ).hex() );
+                } else {
+                    ppiTextB2.setEditable(true);
+                }
+
+                if(!ppi2.portCLowerIOfunc()){
+                    ppiTextCl2.setEditable(false);
+                    Register8 temp = ppi2.externalGet( new Register8(0x82) );
+                    Register4 t = new Register4( temp.get() );
+                    ppiTextCl2.setText( t.hex() );
+                } else {
+                    ppiTextCl2.setEditable(true);
+                }
+
+                if(!ppi2.portCUpperIOfunc()){
+                    ppiTextCu2.setEditable(false);
+                    Register8 temp = ppi2.externalGet( new Register8(0x82) );
+                    Alu.shr(temp);
+                    Alu.shr(temp);
+                    Alu.shr(temp);
+                    Alu.shr(temp);
+                    Register4 t = new Register4( temp.get() );
+                    ppiTextCu2.setText( t.hex() );
+                } else {
+                    ppiTextCu2.setEditable(true);
+                }
+
 
             }
 

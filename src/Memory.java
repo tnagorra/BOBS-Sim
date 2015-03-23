@@ -84,7 +84,6 @@ class Memory  extends Thread {
         }
     }
 
-    /*
     public void print( Register16 position, int total) {
         System.out.print( position.hex() + " : ");
         for (int i = 0; i < total && i + position.get() < memories.length; i++) {
@@ -92,7 +91,6 @@ class Memory  extends Thread {
         }
         System.out.print("\n");
     }
-    */
 
 }
 

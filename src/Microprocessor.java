@@ -89,7 +89,7 @@ public class Microprocessor extends Thread {
                         System.out.println("Microprocessor Halted!");
 
                     // Some sleep time  so that processor isn't stressed
-                    Thread.sleep(25);
+                    // Thread.sleep(25);
                 }
             }
 
