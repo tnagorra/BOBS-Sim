@@ -879,7 +879,7 @@ public class Gui
                     }
                 }
 
-                // Update PPI
+                // Update PPI2
                 // Not used because this is external device
 
                 // true when ppi in output mode
@@ -919,6 +919,52 @@ public class Gui
                 } else {
                     ppiTextCu2.setEditable(true);
                 }
+
+
+
+
+                // Update PPI1
+                // Not used because this is external device
+
+                // true when ppi in output mode
+                if(!ppi1.portAIOfunc()){
+                    ppiTextA1.setEditable(false);
+                    ppiTextA1.setText( ppi1.externalGet( new Register8(0x40) ).hex() );
+                } else {
+                    ppiTextA1.setEditable(true);
+                }
+
+
+                if(!ppi1.portBIOfunc()){
+                    ppiTextB1.setEditable(false);
+                    ppiTextB1.setText( ppi1.externalGet( new Register8(0x41) ).hex() );
+                } else {
+                    ppiTextB1.setEditable(true);
+                }
+
+                if(!ppi1.portCLowerIOfunc()){
+                    ppiTextCl1.setEditable(false);
+                    Register8 temp = ppi1.externalGet( new Register8(0x42) );
+                    Register4 t = new Register4( temp.get() );
+                    ppiTextCl1.setText( t.hex() );
+                } else {
+                    ppiTextCl1.setEditable(true);
+                }
+
+                if(!ppi1.portCUpperIOfunc()){
+                    ppiTextCu1.setEditable(false);
+                    Register8 temp = ppi1.externalGet( new Register8(0x42) );
+                    Alu.shr(temp);
+                    Alu.shr(temp);
+                    Alu.shr(temp);
+                    Alu.shr(temp);
+                    Register4 t = new Register4( temp.get() );
+                    ppiTextCu1.setText( t.hex() );
+                } else {
+                    ppiTextCu1.setEditable(true);
+                }
+
+
 
 
             }
