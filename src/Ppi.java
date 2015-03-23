@@ -19,12 +19,15 @@ class Ppi extends Thread {
         return true;
     }
 
+
+    /*
     public void debugGet(Register8 addr) {
         if ( !isMine(addr) )
             throw new IndexOutOfBoundsException();
         int index = getIndex(addr);
         System.out.println( ports[index].hex());
     }
+    */
 
     // Mode Selection for portA
     // controlRegister  PortA
@@ -171,6 +174,7 @@ class Ppi extends Thread {
         }
         return data;
     }
+
     // NOTE: we never read 4bit data from PPI
     // No use for reading Cl or Cu
     // Read from a port based on the index of ports
