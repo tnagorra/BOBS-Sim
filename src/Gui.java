@@ -454,7 +454,7 @@ public class Gui
         ppiTextCl1 = new JTextField();
         ppiTextCl1.setEditable(false);
         ppiTextCl1.setColumns(10);
-        ppiTextCl1.setBounds(80, 110, 30, 19);
+        ppiTextCl1.setBounds(80, 120, 30, 19);
         ppiTextCl1.setText("0");
         ppiTextCl1.setHorizontalAlignment(SwingConstants.CENTER);
         ppiPanel1.add(ppiTextCl1);
